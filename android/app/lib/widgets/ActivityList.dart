@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../models/Activities.dart';
 import '../models/MountainActivity.dart';
 import 'activitydetail.dart';
 
 class ActivityList extends StatelessWidget {
-  final List<MountainActivity> db;
-  ActivityList(this.db);
+  final List<MountainActivity> db = Activities.fetchAll();
+  //ActivityList(this.db);
   final double _height = 115;
   @override
   Widget build(BuildContext context) {
@@ -14,16 +15,6 @@ class ActivityList extends StatelessWidget {
         separatorBuilder: (BuildContext context, int index) => Container(height: 5),
         itemCount: db.length,
         itemBuilder: (context, index) {
-          /*return Card(
-              child: ListTile(
-                  onTap: (){},
-                  title: Text(titles[index]),
-                  subtitle: Text(subtitles[index]),
-                  trailing: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          "https://images.unsplash.com/photo-1547721064-da6cfb341d50")),
-                  )
-          );*/
           return Card(
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -37,8 +28,8 @@ class ActivityList extends StatelessWidget {
               child: Expanded(
                 child: Row(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                     Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(db[index].mountainName, style: TextStyle(fontSize: 22)),
                           Text(DateFormat('dd.MM.yyyy').format(db[index].dateTime)),

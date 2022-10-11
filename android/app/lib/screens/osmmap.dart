@@ -17,7 +17,7 @@ class OsmMap extends StatelessWidget{
         trackMyPosition: false,
         initZoom: 8,
         minZoomLevel: 5,
-        maxZoomLevel: 14,
+        maxZoomLevel: 16,
         stepZoom: 1.0,
         userLocationMarker: UserLocationMaker(
           personMarker: MarkerIcon(

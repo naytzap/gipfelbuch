@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class NavDrawer extends StatelessWidget {
+
   static const msgNotImplemented = SnackBar(
     content: Text('Feature not implemented :/'),
   );
+
+  const NavDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,6 @@ class NavDrawer extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(msgNotImplemented);
-              Navigator.pushNamed(context, '/map');
             },
           ),
           ListTile(

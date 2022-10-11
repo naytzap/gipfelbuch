@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatefulWidget{
+  final Function notifyParent;
+  const BottomNavBar({super.key, required this.notifyParent});
+
   @override
   State<StatefulWidget> createState() => _MyBottomNBState();
 
@@ -13,14 +16,14 @@ class _MyBottomNBState extends State<BottomNavBar> {
   var _selectedIndex = 0;
 
   void _onItemTapped(int index) {
+    debugPrint("Tapped bottom nav bar: $index");
+    widget.notifyParent(index);
     setState(
           () {
         _selectedIndex = index;
       },
     );
   }
-
-  int getIndex() => _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
