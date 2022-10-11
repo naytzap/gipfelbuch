@@ -23,11 +23,11 @@ class ActivityList extends StatelessWidget {
                 Navigator.push(context,MaterialPageRoute(builder: (context) => ActivityDetail(db[index])));
                 },
             child: SizedBox(
-              width: 300,
+              width: 250,
               height: _height,
               child: Expanded(
                 child: Row(
-                  children: [
+                  children: [ Padding(padding: EdgeInsets.all(16),child:
                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -36,7 +36,7 @@ class ActivityList extends StatelessWidget {
                           Expanded(child: Container()),
                           Text("${db[index].distance.toString()} km | ${db[index].duration.toString()} h | ${db[index].verticalAscend.toString()} vm")
                         ]
-                    ),
+                    ),),
                     Expanded(child: Container()),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,

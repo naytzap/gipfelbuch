@@ -11,15 +11,17 @@ class About extends StatelessWidget {
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: const <Widget>[
             Card(
                 child: ListTile(
+                  leading: Icon(Icons.people),
                   title: Text("Authors"),
                   subtitle: Text("Inspired by Stevie\nCoded by Jonas"),
                 )
             ),
             Card(
               child: ListTile(
+                leading: Icon(Icons.code),
                 title: Text("Source"),
                 subtitle: Text("github.com/naytzap/gipfelbuch\nLicense: GNU General Public License v3.0"),
               )

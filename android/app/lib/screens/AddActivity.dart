@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddActivityForm extends StatefulWidget {
@@ -27,19 +26,19 @@ class _AddActivityFormState extends State<AddActivityForm> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Add Activity"),
+          title: const Text("Add Activity"),
         ),
         body: ListView(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           itemExtent: 70,
           children: [
             TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Mountain Name'),
               controller: _controller,
             ),
             TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Visitors'),
               controller: _controller,
             ),
@@ -47,17 +46,17 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
             ),
             TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Distance'),
               controller: _controller,
             ),
             TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Duration'),
               controller: _controller,
             ),
             TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Vertical Meters'),
               controller: _controller,
             ),
@@ -67,7 +66,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     onPressed: () {
                       debugPrint("Add act pressed");
                     },
-                    child: Text(
+                    child: const Text(
                       "Add activity",
                       style: TextStyle(
                           backgroundColor: Colors.lightGreen,
