@@ -15,7 +15,7 @@ class OsmMap extends StatefulWidget {
 }
 
 class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
-  List<MountainActivity> db = Activities.fetchAll();
+  //List<MountainActivity> db = Activities.fetchAll();
   MapController controller =MapController.customLayer(
     initMapWithUserPosition: false,
     initPosition: GeoPoint(
@@ -41,11 +41,11 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
   @override
   void initState() {
     super.initState();
-    drawPositions();
+    //drawPositions();
 
   }
 
-  void drawPositions() async{
+  /*void drawPositions() async{
     debugPrint("###########Draw locations");
     for (var activity in db) {
       await controller.addMarker(activity.location,
@@ -68,7 +68,7 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
               )));
     }
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavBar(notifyParent: refresh,),
       floatingActionButton: FloatingActionButton(
         onPressed: () {debugPrint('Tapped add activity');
-          Navigator.push(context,MaterialPageRoute(builder: (context) => const AddActivityForm()));},
+          Navigator.push(context,MaterialPageRoute(builder: (context) => const AddActivityForm())).then((_) => setState(() {}));},
         tooltip: 'Add Activity',
         child: const Icon(Icons.add),
       ),

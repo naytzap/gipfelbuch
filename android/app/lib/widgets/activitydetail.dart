@@ -4,12 +4,54 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../database_helper.dart';
 import '../models/MountainActivity.dart';
 import 'qrwidget.dart';
 
 class ActivityDetail extends StatelessWidget{
   final MountainActivity activity;
   ActivityDetail(this.activity);
+
+
+  showDeleteDialog(BuildContext context) {
+
+    // set up the buttons
+    Widget deleteButton = TextButton(
+      child: Text("Delete"),
+      onPressed:  () {
+        // TODO: remove image as well, if there is any
+        DatabaseHelper.instance.delete(activity.id!);
+        var count = 0;
+        Navigator.popUntil(context, (route) {
+          return count++ == 2;
+        });
+        },
+    );
+    Widget cancelButton = TextButton(
+      child: Text("Cancel"),
+      onPressed:  () {Navigator.of(context).pop();},
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Delete Activity"),
+      content: Text("Are you sure? This can't be undone!"),
+      actions: [
+        deleteButton,
+        cancelButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +76,8 @@ class ActivityDetail extends StatelessWidget{
             PopupMenuButton<String>(
               onSelected: (value) {
                 switch(value){
-                  case 'Share':
+                  case 'Delete':
+                    showDeleteDialog(context);
                     break;
                 }
               },
@@ -56,12 +99,12 @@ class ActivityDetail extends StatelessWidget{
             ListTile(
                 leading: Icon(Icons.date_range),
                 title: Text("Date of visit"),
-                subtitle: Text(DateFormat('dd.MM.yyyy').format(activity.dateTime)),
+                subtitle: Text(DateFormat('dd.MM.yyyy').format(activity.date)),
             ),
             ListTile(
               leading: Icon(Icons.people),
               title: Text("Visitors"),
-              subtitle: Text(activity.participants),
+              subtitle: Text(activity.participants??""),
             ),
             ListTile(
               leading: Icon(Icons.arrow_forward),
@@ -76,7 +119,7 @@ class ActivityDetail extends StatelessWidget{
             ListTile(
               leading: Icon(Icons.keyboard_arrow_up_outlined),
               title: Text("Vertical"),
-              subtitle: Text(activity.verticalAscend.toString() + " hm"),
+              subtitle: Text(activity.climb.toString() + " hm"),
             )
           ],
         )
@@ -86,10 +129,11 @@ class ActivityDetail extends StatelessWidget{
 
   void handleClick(value) {
     switch (value) {
-      case 'Share':
-        debugPrint('Tapped add activity');
+      case 'Delete':
+        debugPrint('clicked delete...');
+        showDeleteDialog;
         break;
-      case 'Settings':
+      case 'Edit':
         break;
     }
   }

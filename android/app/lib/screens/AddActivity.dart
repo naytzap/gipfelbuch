@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+
+import '../database_helper.dart';
+import '../models/MountainActivity.dart';
 
 class AddActivityForm extends StatefulWidget {
   const AddActivityForm({super.key});
@@ -9,11 +13,13 @@ class AddActivityForm extends StatefulWidget {
 
 class _AddActivityFormState extends State<AddActivityForm> {
   late TextEditingController _controller;
+  late TextEditingController _nameCtrl;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _nameCtrl = TextEditingController();
   }
 
   @override
@@ -35,7 +41,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
             TextField(
               decoration: const InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Mountain Name'),
-              controller: _controller,
+              controller: _nameCtrl,
             ),
             TextField(
               decoration: const InputDecoration(
@@ -43,7 +49,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
               controller: _controller,
             ),
             InputDatePickerFormField(firstDate: DateTime(1990,1,1), lastDate: DateTime.now(),
-
             ),
             TextField(
               decoration: const InputDecoration(
@@ -65,7 +70,16 @@ class _AddActivityFormState extends State<AddActivityForm> {
                 child: TextButton(
                     onPressed: () {
                       debugPrint("Add act pressed");
-                    },
+                      DatabaseHelper.instance.addActivity(MountainActivity(
+                          mountainName: _nameCtrl.text,
+                          climb: 13,
+                          distance: 14,
+                          duration: 234,
+                          location: GeoPoint(latitude: 1,longitude: 1),
+                          participants: "ich, und, wer, anders",
+                          date: DateTime.now()));
+                    Navigator.pop(context);
+                      },
                     child: const Text(
                       "Add activity",
                       style: TextStyle(
