@@ -20,7 +20,7 @@ class ActivityList extends StatelessWidget {
           }
           if (snapshot.data!.isEmpty) {
             return Center(
-                child: Text("No activities.\n Go on an adventure! :)"));
+                child: Text("No activities.\n Add an adventure! :)", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 22),));
           }
           return ListView.separated(
               separatorBuilder: (BuildContext context, int index) =>

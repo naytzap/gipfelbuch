@@ -14,26 +14,33 @@ class AddActivityForm extends StatefulWidget {
 
 class _AddActivityFormState extends State<AddActivityForm> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _controller;
-  late TextEditingController _nameCtrl;
-  late TextEditingController _dateCtrl;
+  late TextEditingController _nameCtrl= TextEditingController();
+  late TextEditingController _visitorCtrl= TextEditingController();
+  late TextEditingController _dateCtrl= TextEditingController();
+  late TextEditingController _distanceCtrl= TextEditingController();
+  late TextEditingController _durationCtrl= TextEditingController();
+  late TextEditingController _climbCtrl= TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
-    _nameCtrl = TextEditingController();
-    _dateCtrl = TextEditingController();
+    //_nameCtrl = TextEditingController();
+    //_dateCtrl = TextEditingController();
+    //_visitorCtrl = TextEditingController();
+    //_distanceCtrl = TextEditingController();
+    //_durationCtrl = TextEditingController();
+    //_climbCtrl = TextEditingController();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    //_controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    double vSpacing = 10;
     return Scaffold(
         appBar: AppBar(
           title: const Text("Add Activity"),
@@ -42,12 +49,19 @@ class _AddActivityFormState extends State<AddActivityForm> {
           //padding: const EdgeInsets.all(10),
           //itemExtent: 70,
           key: _formKey,
-          child: Column(
-
+          child:
+          Padding(
+            padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+            child:
+          SingleChildScrollView(
+    child:
+          Column(
           children: [
             TextFormField(
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Mountain Name'),
+                  border: OutlineInputBorder(),
+                  labelText: 'Mountain Name',
+                  icon: Icon(Icons.landscape_outlined,),),
               controller: _nameCtrl,
               validator: (value) {
                 if (value == null || value.isEmpty){
@@ -56,18 +70,23 @@ class _AddActivityFormState extends State<AddActivityForm> {
                 return null;
               },
             ),
+            SizedBox(height:vSpacing),
             TextField(
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Visitors'),
-              controller: _controller,
+                  border: OutlineInputBorder(),
+                  labelText: 'Visitors',
+                  icon: Icon(Icons.people_outlined)),
+              controller: _visitorCtrl,
             ),
             //InputDatePickerFormField(,firstDate: DateTime(1990,1,1), lastDate: DateTime.now(),
             //),
+            SizedBox(height:vSpacing),
             TextFormField(
               controller: _dateCtrl, //editing controller of this TextField
               decoration: InputDecoration(
-                  //icon: Icon(Icons.calendar_today), //icon of text field
-                  labelText: "Enter Date" //label text of field
+                  border: OutlineInputBorder(),
+                  icon: Icon(Icons.calendar_today), //icon of text field
+                  labelText: "Date" //label text of field
               ),
               readOnly: true,  //set it true, so that user will not able to edit text
               onTap: () async {
@@ -90,36 +109,58 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   print("Date is not selected");
                 }
               },
+              validator: (value) {
+                if(value?.isEmpty??false)
+                  return 'Please select a date';
+              },
             ),
+            SizedBox(height:vSpacing),
+            TextFormField(
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(), labelText: 'Distance',
+                  icon: Icon(Icons.straighten_outlined,),),
+              controller: _distanceCtrl,
+              validator: (value) {
+                if((value?.isNotEmpty??false) && !(double.tryParse(value!)==null)){
+                  if(double.tryParse(value)!<0)
+                    return 'Insert positive value';
+                  return null;
+                }else if(value?.isNotEmpty??false) {
+                  return 'Please enter a positive number!';
+                }
+                },
+            ),
+            SizedBox(height:vSpacing),
             TextField(
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Distance'),
-              controller: _controller,
+                  border: OutlineInputBorder(), labelText: 'Duration',
+                  icon: Icon(Icons.timer_outlined)),
+              controller: _durationCtrl,
             ),
+            SizedBox(height:vSpacing),
             TextField(
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Duration'),
-              controller: _controller,
+                  border: OutlineInputBorder(), labelText: 'Vertical Meters',
+              icon: Icon(Icons.height_outlined)),
+              controller: _climbCtrl,
             ),
-            TextField(
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Vertical Meters'),
-              controller: _controller,
-            ),
+            SizedBox(height:vSpacing),
             Container(
                 color: Colors.lightGreen,
                 child: TextButton(
                     onPressed: () {
                       debugPrint("Add act pressed");
                       if(_formKey.currentState!.validate()) {
-                        DatabaseHelper.instance.addActivity(MountainActivity(
+                        var activity = MountainActivity(
                             mountainName: _nameCtrl.text,
-                            climb: 13,
-                            distance: 14,
-                            duration: 234,
-                            location: GeoPoint(latitude: 1, longitude: 1),
-                            participants: "ich, und, wer, anders",
-                            date: DateFormat("dd.MM.yyyy").parse(_dateCtrl.text)));
+                            climb: int.tryParse(_climbCtrl.text),
+                            distance: double.tryParse(_distanceCtrl.text),
+                            duration: double.tryParse(_durationCtrl.text),
+                            location: GeoPoint(latitude: 49, longitude: 12),
+                            participants: _visitorCtrl.text??"",
+                            date: DateFormat("dd.MM.yyyy").parse(_dateCtrl.text));
+                        debugPrint(activity.toMap().toString());
+                        DatabaseHelper.instance.addActivity(activity);
                         Navigator.pop(context);
                       }else{debugPrint("Form not valid!");}
                       },
@@ -131,6 +172,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     )))
           ],
         ),
+          )
+          )
         )
     );
   }
