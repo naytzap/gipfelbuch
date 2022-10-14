@@ -46,7 +46,7 @@ class DatabaseHelper {
 
   Future<List<MountainActivity>> getAllActivities() async{
     Database db = await instance.database;
-    var activities = await db.query('mountain_activities', orderBy: 'date');
+    var activities = await db.query('mountain_activities', orderBy: 'date DESC' );
     List<MountainActivity> list = activities.isNotEmpty ? activities.map((e) => MountainActivity.fromMap(e)).toList() : [];
     return list;
   }

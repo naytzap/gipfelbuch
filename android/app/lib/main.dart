@@ -14,16 +14,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GipfelBuch',
+      title: 'Gipfelbuch',
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
       ),
       //home: const MyHomePage(title: 'GipfelBuch'),
       initialRoute: '/',
       routes: {
-        '/': (context) => const MyHomePage(title: 'GipfelBuch',),
+        '/': (context) => const MyHomePage(title: 'Gipfelbuch',),
         '/about': (context) => About(),
-        '/map': (context) => OsmMap()
+        '/map': (context) => OsmMap(),
+        '/add': (context) => AddActivityForm()
       },
     );
   }
@@ -61,12 +62,15 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: const NavDrawer(),
       body: screens[currentIndex],
       bottomNavigationBar: BottomNavBar(notifyParent: refresh,),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {debugPrint('Tapped add activity');
-          Navigator.push(context,MaterialPageRoute(builder: (context) => const AddActivityForm())).then((_) => setState(() {}));},
+      floatingActionButton: currentIndex==0? FloatingActionButton(
+        onPressed: () async {
+          debugPrint('Tapped add activity');
+          //Navigator.push(context,MaterialPageRoute(builder: (context) => const AddActivityForm())).then((_) => setState(() {}));
+          await Navigator.pushNamed(context, '/add').then((_) => setState(() {}));
+        },
         tooltip: 'Add Activity',
         child: const Icon(Icons.add),
-      ),
+      ):null,
     );
   }
 }
