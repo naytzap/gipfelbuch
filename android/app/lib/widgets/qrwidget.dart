@@ -11,27 +11,40 @@ class QrWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(),
-        body: Column(
-          children: [
-            QrImage(
-              data: data, //data.toString(),
-              version: 8,
-              gapless: false,
-              errorStateBuilder: (cxt, err) {
-                debugPrint(err.toString());
-                return Container(
-                  child: Center(
-                    child: Text(
-                      "Uh oh! Something went wrong...",
-                      textAlign: TextAlign.center,
+        body: SingleChildScrollView(
+            child: Padding(
+                padding: const EdgeInsets.all(25),
+                child: Column(
+                  children: [
+                    const ListTile(
+                      title: Text("Share your activity!"),
+                      subtitle: Text(
+                          "Instead of typing all the information manually, your friends can scan this QR code in the 'add activity' menu."),
                     ),
-                  ),
-                );
-              },
-            ),
-            Expanded(child: Container()),
-            Text(data)
-          ],
-        ));
+                    Container(height: 40),
+                    QrImage(
+                      data: data, //data.toString(),
+                      version: 10,
+                      gapless: false,
+                      errorStateBuilder: (cxt, err) {
+                        debugPrint(err.toString());
+                        return Container(
+                          child: const Center(
+                            child: Text(
+                              "Uh oh! Something went wrong...",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    Container(height: 40),
+                    //Expanded(child: Container()),
+                    ListTile(
+                      title: const Text("QR Code content"),
+                      subtitle: Text(data),
+                    )
+                  ],
+                ))));
   }
 }

@@ -7,8 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'models/MountainActivity.dart';
 
 class DatabaseHelper {
-  static final _databaseName = "Gipfelbuch.db";
-  static final _dabaseVersion = 1;
+  static const _databaseName = "Gipfelbuch.db";
+  static const _dabaseVersion = 1;
 
   // This is a singleton class
   DatabaseHelper._privateConstructor();

@@ -64,7 +64,7 @@ class ActivityDetail extends StatelessWidget{
                 debugPrint("Show on map not implemented");
               },
             ),
-            Container(width: 10,),
+            Container(width: 20,),
             InkWell(
                 child:Icon(Icons.qr_code),
                 onTap: () {

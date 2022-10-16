@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:intl/intl.dart';
 
 import '../database_helper.dart';
 import '../models/MountainActivity.dart';
+
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class AddActivityForm extends StatefulWidget {
   const AddActivityForm({super.key});
@@ -14,12 +19,12 @@ class AddActivityForm extends StatefulWidget {
 
 class _AddActivityFormState extends State<AddActivityForm> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameCtrl= TextEditingController();
-  late TextEditingController _visitorCtrl= TextEditingController();
-  late TextEditingController _dateCtrl= TextEditingController();
-  late TextEditingController _distanceCtrl= TextEditingController();
-  late TextEditingController _durationCtrl= TextEditingController();
-  late TextEditingController _climbCtrl= TextEditingController();
+  late final TextEditingController _nameCtrl= TextEditingController();
+  late final TextEditingController _visitorCtrl= TextEditingController();
+  late final TextEditingController _dateCtrl= TextEditingController();
+  late final TextEditingController _distanceCtrl= TextEditingController();
+  late final TextEditingController _durationCtrl= TextEditingController();
+  late final TextEditingController _climbCtrl= TextEditingController();
 
   @override
   void initState() {
@@ -34,8 +39,52 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
   @override
   void dispose() {
-    //_controller.dispose();
+    _nameCtrl.dispose();
+    _visitorCtrl.dispose();
+    _dateCtrl.dispose();
+    _distanceCtrl.dispose();
+    _durationCtrl.dispose();
+    _climbCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> readQrCode() async {
+    String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+        Colors.lightGreen.toString(),
+        "Cancel",
+        false, ScanMode.QR);
+    debugPrint(barcodeScanRes.toString());
+  }
+
+  Future<void> scanQR() async {
+    String barcodeScanRes;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          "#8BC34AFF", 'Cancel', false, ScanMode.QR);
+      print(barcodeScanRes);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      //_scanBarcode = barcodeScanRes;
+      debugPrint(barcodeScanRes.toString());
+      var activity = jsonDecode(barcodeScanRes.toString());
+      //Todo: error handling
+      _nameCtrl.text = activity["mountainName"];
+      _visitorCtrl.text = activity["participants"];
+      _dateCtrl.text = DateFormat("dd.MM.yyyy")
+          .format(DateTime.fromMillisecondsSinceEpoch(activity["date"]));
+      _distanceCtrl.text = activity["distance"].toString();
+      _durationCtrl.text = activity["duration"].toString();
+      _climbCtrl.text = activity["climb"].toString();
+    });
   }
 
   @override
@@ -44,6 +93,13 @@ class _AddActivityFormState extends State<AddActivityForm> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Add Activity"),
+          actions: <Widget> [
+            InkWell(
+              onTap: scanQR,
+              child: const Icon(Icons.qr_code_scanner)
+            ),
+            Container(width: 15,),
+          ],
         ),
         body: Form(
           //padding: const EdgeInsets.all(10),
@@ -51,7 +107,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
           key: _formKey,
           child:
           Padding(
-            padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+            padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
             child:
           SingleChildScrollView(
     child:
@@ -83,7 +139,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
             SizedBox(height:vSpacing),
             TextFormField(
               controller: _dateCtrl, //editing controller of this TextField
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   icon: Icon(Icons.calendar_today), //icon of text field
                   labelText: "Date" //label text of field
@@ -157,7 +213,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             distance: double.tryParse(_distanceCtrl.text),
                             duration: double.tryParse(_durationCtrl.text),
                             location: GeoPoint(latitude: 49, longitude: 12),
-                            participants: _visitorCtrl.text??"",
+                            participants: _visitorCtrl.text,
                             date: DateFormat("dd.MM.yyyy").parse(_dateCtrl.text));
                         debugPrint(activity.toMap().toString());
                         DatabaseHelper.instance.addActivity(activity);
