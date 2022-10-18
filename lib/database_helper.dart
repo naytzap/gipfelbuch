@@ -18,7 +18,7 @@ class DatabaseHelper {
   Future<Database> get database async => _database ??= await _initDatabase();
 
   Future<Database> _initDatabase() async {
-    debugPrint("init database");
+    debugPrint("init/opening database");
     Directory appDir = await getApplicationDocumentsDirectory();
     String path = join(appDir.path, _databaseName);
     return await openDatabase(
@@ -44,25 +44,41 @@ class DatabaseHelper {
     )''');
   }
 
-  Future<List<MountainActivity>> getAllActivities() async{
+  Future<List<MountainActivity>> getAllActivities() async {
     Database db = await instance.database;
-    var activities = await db.query('mountain_activities', orderBy: 'date DESC' );
-    List<MountainActivity> list = activities.isNotEmpty ? activities.map((e) => MountainActivity.fromMap(e)).toList() : [];
+    var activities =
+        await db.query('mountain_activities', orderBy: 'date DESC');
+    List<MountainActivity> list = activities.isNotEmpty
+        ? activities.map((e) => MountainActivity.fromMap(e)).toList()
+        : [];
     return list;
   }
 
-  Future<int> addActivity(MountainActivity activity) async{
+  Future<MountainActivity?> getActivity(int id) async {
+    Database db = await instance.database;
+    var activities =
+        await db.query('mountain_activities', where: 'id = ?', whereArgs: [id]);
+    if (activities.isNotEmpty) {
+      return MountainActivity.fromMap(activities.first);
+    } else {
+      return null;
+    }
+  }
+
+  Future<int> addActivity(MountainActivity activity) async {
     Database db = await instance.database;
     return await db.insert('mountain_activities', activity.toMap());
   }
 
   Future<int> delete(int id) async {
     Database db = await instance.database;
-    return await db.delete('mountain_activities', where: 'id = ?', whereArgs: [id]);
+    return await db
+        .delete('mountain_activities', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> update(MountainActivity activity) async {
     Database db = await instance.database;
-    return await db.update('mountain_activities', activity.toMap(), where: 'id = ?', whereArgs: [activity.id]);
+    return await db.update('mountain_activities', activity.toMap(),
+        where: 'id = ?', whereArgs: [activity.id]);
   }
 }

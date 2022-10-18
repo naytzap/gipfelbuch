@@ -11,7 +11,8 @@ import '../models/MountainActivity.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class AddActivityForm extends StatefulWidget {
-  const AddActivityForm({super.key});
+  final MountainActivity? activity;
+  AddActivityForm(this.activity, {super.key});
 
   @override
   State<StatefulWidget> createState() => _AddActivityFormState();
@@ -19,6 +20,10 @@ class AddActivityForm extends StatefulWidget {
 
 class _AddActivityFormState extends State<AddActivityForm> {
   final _formKey = GlobalKey<FormState>();
+  late bool _editMode = false;
+  bool edited = false;
+  late MountainActivity _editedActivity;
+  //late MountainActivity? activity;
   late final TextEditingController _nameCtrl= TextEditingController();
   late final TextEditingController _visitorCtrl= TextEditingController();
   late final TextEditingController _dateCtrl= TextEditingController();
@@ -28,17 +33,14 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
   @override
   void initState() {
+
     super.initState();
-    //_nameCtrl = TextEditingController();
-    //_dateCtrl = TextEditingController();
-    //_visitorCtrl = TextEditingController();
-    //_distanceCtrl = TextEditingController();
-    //_durationCtrl = TextEditingController();
-    //_climbCtrl = TextEditingController();
+
   }
 
   @override
   void dispose() {
+    debugPrint("dispose add/edit activity");
     _nameCtrl.dispose();
     _visitorCtrl.dispose();
     _dateCtrl.dispose();
@@ -87,13 +89,31 @@ class _AddActivityFormState extends State<AddActivityForm> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
+
+    final act = ModalRoute.of(context)?.settings.arguments as MountainActivity;
+    _editMode = act.id!=null;
+    if(_editMode){
+        if (!edited) {
+          //this is only once called
+          edited = true;
+          _editedActivity = act;
+          _nameCtrl.text = _editedActivity!.mountainName;
+          _visitorCtrl.text = _editedActivity!.participants??"";
+          _dateCtrl.text = DateFormat('dd.MM.yyyy').format(_editedActivity!.date);
+          _distanceCtrl.text = _editedActivity!.distance.toString();
+          _durationCtrl.text = _editedActivity!.duration.toString();
+          _climbCtrl.text = _editedActivity!.climb.toString();
+        }
+    }
+
     double vSpacing = 10;
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Add Activity"),
-          actions: <Widget> [
+          title: _editMode == true ? const Text("Edit Activity") : const Text("Add Activity"),
+          actions: _editMode?[]:<Widget> [
             InkWell(
               onTap: scanQR,
               child: const Icon(Icons.qr_code_scanner)
@@ -148,14 +168,15 @@ class _AddActivityFormState extends State<AddActivityForm> {
               onTap: () async {
                 DateTime? pickedDate = await showDatePicker(
                     context: context, initialDate: DateTime.now(),
-                    firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
-                    lastDate: DateTime(2101)
+                    firstDate: DateTime(1960), //DateTime.now() - not to allow to choose before today.
+                    lastDate: DateTime.now(),
+                    locale: const Locale('de', 'DE')
                 );
 
                 if(pickedDate != null ){
                   //print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
                   String formattedDate = DateFormat('dd.MM.yyyy').format(pickedDate);
-                  //print(formattedDate); //formatted date output using intl package =>  2021-03-16
+                  debugPrint("Selected $formattedDate"); //formatted date output using intl package =>  2021-03-16
                   //you can implement different kind of Date Format here according to your requirement
 
                   setState(() {
@@ -210,6 +231,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       debugPrint("Add act pressed");
                       if(_formKey.currentState!.validate()) {
                         var activity = MountainActivity(
+                            id: _editMode?act.id:null,
                             mountainName: _nameCtrl.text,
                             climb: int.tryParse(_climbCtrl.text),
                             distance: double.tryParse(_distanceCtrl.text),
@@ -218,12 +240,15 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             participants: _visitorCtrl.text,
                             date: DateFormat("dd.MM.yyyy").parse(_dateCtrl.text));
                         debugPrint(activity.toMap().toString());
-                        DatabaseHelper.instance.addActivity(activity);
+                        if(_editMode) {
+                          DatabaseHelper.instance.update(activity);
+                        }else {
+                          DatabaseHelper.instance.addActivity(activity);
+                        }
                         Navigator.pop(context);
                       }else{debugPrint("Form not valid!");}
                       },
-                    child: const Text(
-                      "Add activity",
+                    child: Text(_editMode?"Edit Activity": "Add Activity",
                       style: TextStyle(
                           backgroundColor: Colors.lightGreen,
                           color: Colors.white),

@@ -25,8 +25,8 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
     customTile: CustomTile(
       sourceName: "opentopomap",
       tileExtension: ".png",
-      minZoomLevel: 2,
-      maxZoomLevel: 19,
+      minZoomLevel: 1,
+      maxZoomLevel: 20,
       urlsServers: [
         TileURLs(
           url: "https://tile.opentopomap.org/",

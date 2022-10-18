@@ -16,7 +16,7 @@ class ActivityDetail extends StatelessWidget{
 
     // set up the buttons
     Widget deleteButton = TextButton(
-      child: const Text("Delete"),
+      child: const Text("Delete", style: TextStyle(color: Colors.red)),
       onPressed:  () {
         // TODO: remove image as well, if there is any
         DatabaseHelper.instance.delete(activity.id!);
@@ -75,6 +75,10 @@ class ActivityDetail extends StatelessWidget{
             PopupMenuButton<String>(
               onSelected: (value) {
                 switch(value){
+                  case 'Edit':
+                    debugPrint("Pressed Edit");
+                    editActivity(context);
+                    break;
                   case 'Delete':
                     showDeleteDialog(context);
                     break;
@@ -135,5 +139,10 @@ class ActivityDetail extends StatelessWidget{
       case 'Edit':
         break;
     }
+  }
+
+  editActivity(BuildContext context) {
+    debugPrint("editing: $activity");
+    Navigator.pushNamed(context, "/add",arguments: activity);
   }
 }
