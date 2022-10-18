@@ -62,7 +62,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           "#8BC34AFF", 'Cancel', false, ScanMode.QR);
-      print(barcodeScanRes);
+      debugPrint(barcodeScanRes);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
@@ -162,12 +162,13 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     _dateCtrl.text = formattedDate; //set output date to TextField value.
                   });
                 }else{
-                  print("Date is not selected");
+                  debugPrint("Date is not selected");
                 }
               },
               validator: (value) {
-                if(value?.isEmpty??false)
+                if(value?.isEmpty??false) {
                   return 'Please select a date';
+                }
               },
             ),
             SizedBox(height:vSpacing),
@@ -178,8 +179,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
               controller: _distanceCtrl,
               validator: (value) {
                 if((value?.isNotEmpty??false) && !(double.tryParse(value!)==null)){
-                  if(double.tryParse(value)!<0)
+                  if(double.tryParse(value)!<0) {
                     return 'Insert positive value';
+                  }
                   return null;
                 }else if(value?.isNotEmpty??false) {
                   return 'Please enter a positive number!';

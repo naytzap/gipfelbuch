@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrWidget extends StatelessWidget {
   final String data;
 
-  QrWidget(this.data);
+  const QrWidget(this.data);
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +27,10 @@ class QrWidget extends StatelessWidget {
                       gapless: false,
                       errorStateBuilder: (cxt, err) {
                         debugPrint(err.toString());
-                        return Container(
-                          child: const Center(
-                            child: Text(
-                              "Uh oh! Something went wrong...",
-                              textAlign: TextAlign.center,
-                            ),
+                        return const Center(
+                          child: Text(
+                            "Uh oh! Something went wrong...",
+                            textAlign: TextAlign.center,
                           ),
                         );
                       },

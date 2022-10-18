@@ -1,7 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
-import 'package:intl/intl.dart';
+//import 'package:intl/intl.dart';
 
 class MountainActivity {
   final int? id;

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,14 +9,14 @@ import 'qrwidget.dart';
 
 class ActivityDetail extends StatelessWidget{
   final MountainActivity activity;
-  ActivityDetail(this.activity);
+  const ActivityDetail(this.activity, {super.key});
 
 
   showDeleteDialog(BuildContext context) {
 
     // set up the buttons
     Widget deleteButton = TextButton(
-      child: Text("Delete"),
+      child: const Text("Delete"),
       onPressed:  () {
         // TODO: remove image as well, if there is any
         DatabaseHelper.instance.delete(activity.id!);
@@ -28,14 +27,14 @@ class ActivityDetail extends StatelessWidget{
         },
     );
     Widget cancelButton = TextButton(
-      child: Text("Cancel"),
+      child: const Text("Cancel"),
       onPressed:  () {Navigator.of(context).pop();},
     );
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Delete Activity"),
-      content: Text("Are you sure? This can't be undone!"),
+      title: const Text("Delete Activity"),
+      content: const Text("Are you sure? This can't be undone!"),
       actions: [
         deleteButton,
         cancelButton,
@@ -59,14 +58,14 @@ class ActivityDetail extends StatelessWidget{
           title: Text(activity.mountainName),
           actions: <Widget>[
             InkWell(
-              child:Icon(Icons.map),
+              child:const Icon(Icons.map),
               onTap: () {
                 debugPrint("Show on map not implemented");
               },
             ),
             Container(width: 20,),
             InkWell(
-                child:Icon(Icons.qr_code),
+                child:const Icon(Icons.qr_code),
                 onTap: () {
                   var data = json.encode(activity.toMap());
                   debugPrint(data);
@@ -94,32 +93,32 @@ class ActivityDetail extends StatelessWidget{
         ),
         body: ListView(
           children: [
-            Image(image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg')),
+            const Image(image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg')),
             Container(height: 10),
             ListTile(
-                leading: Icon(Icons.date_range),
-                title: Text("Date of visit"),
+                leading: const Icon(Icons.date_range),
+                title: const Text("Date of visit"),
                 subtitle: Text(DateFormat('dd.MM.yyyy').format(activity.date)),
             ),
             ListTile(
-              leading: Icon(Icons.people),
-              title: Text("Visitors"),
+              leading: const Icon(Icons.people),
+              title: const Text("Visitors"),
               subtitle: Text(activity.participants??""),
             ),
             ListTile(
-              leading: Icon(Icons.arrow_forward),
-              title: Text("Distance"),
-              subtitle: Text(activity.distance.toString() + " km"),
+              leading: const Icon(Icons.arrow_forward),
+              title: const Text("Distance"),
+              subtitle: Text("${activity.distance} km"),
             ),
             ListTile(
-              leading: Icon(Icons.timer),
-              title: Text("Duration"),
-              subtitle: Text(activity.duration.toString() + " h"),
+              leading: const Icon(Icons.timer),
+              title: const Text("Duration"),
+              subtitle: Text("${activity.duration} h"),
             ),
             ListTile(
-              leading: Icon(Icons.keyboard_arrow_up_outlined),
-              title: Text("Vertical"),
-              subtitle: Text(activity.climb.toString() + " hm"),
+              leading: const Icon(Icons.keyboard_arrow_up_outlined),
+              title: const Text("Vertical"),
+              subtitle: Text("${activity.climb} hm"),
             )
           ],
         )

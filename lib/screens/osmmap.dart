@@ -1,11 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 
-import '../models/Activities.dart';
-import '../models/MountainActivity.dart';
+//import '../models/Activities.dart';
+//import '../models/MountainActivity.dart';
 
 class OsmMap extends StatefulWidget {
   const OsmMap({Key? key}) : super(key: key);

@@ -15,35 +15,35 @@ class NavDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Container(/*Text(
-                  'Menu',
-                  style: TextStyle(color: Colors.white, fontSize: 35, backgroundColor: Colors.black12),*/
-                ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 color: Colors.lightGreen,
                 image: DecorationImage(
                     fit: BoxFit.fill,
-                    image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))), //AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))),
+                    image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))),
+            child: Container(/*Text(
+                  'Menu',
+                  style: TextStyle(color: Colors.white, fontSize: 35, backgroundColor: Colors.black12),*/
+                ), //AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))),
           ),
           ListTile(
-            leading: Icon(Icons.bar_chart),
-            title: Text('Statistics'),
+            leading: const Icon(Icons.bar_chart),
+            title: const Text('Statistics'),
             onTap: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(msgNotImplemented);
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
             onTap: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(msgNotImplemented);
             },
           ),
           ListTile(
-            leading: Icon(Icons.info),
-            title: Text('About'),
+            leading: const Icon(Icons.info),
+            title: const Text('About'),
             onTap: () {
               //Navigator.of(context).pop();
               Navigator.pop(context);

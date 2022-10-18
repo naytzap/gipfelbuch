@@ -22,9 +22,9 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(title: 'Gipfelbuch',),
-        '/about': (context) => About(),
-        '/map': (context) => OsmMap(),
-        '/add': (context) => AddActivityForm()
+        '/about': (context) => const About(),
+        '/map': (context) => const OsmMap(),
+        '/add': (context) => const AddActivityForm()
       },
     );
   }
@@ -42,8 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int currentIndex = 0;
 
   final screens = [
-    ActivityList(),
-    OsmMap()
+    const ActivityList(),
+    const OsmMap()
   ];
 
   refresh(int index) {

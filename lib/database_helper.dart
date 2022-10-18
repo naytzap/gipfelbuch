@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -18,7 +18,7 @@ class DatabaseHelper {
   Future<Database> get database async => _database ??= await _initDatabase();
 
   Future<Database> _initDatabase() async {
-    print("init database");
+    debugPrint("init database");
     Directory appDir = await getApplicationDocumentsDirectory();
     String path = join(appDir.path, _databaseName);
     return await openDatabase(
@@ -29,7 +29,7 @@ class DatabaseHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    print('Creating Database');
+    debugPrint('Creating Database');
     await db.execute('''
       CREATE TABLE mountain_activities(
         id INTEGER PRIMARY KEY,

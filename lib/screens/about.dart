@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class About extends StatelessWidget {
+  const About({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('About'),
+        title: const Text('About'),
       ),
       body: Container(
         alignment: Alignment.center,
@@ -21,6 +23,7 @@ class About extends StatelessWidget {
             ),
             Card(
               child: ListTile(
+                //Todo: url launcher
                 leading: Icon(Icons.code),
                 title: Text("Source"),
                 subtitle: Text("github.com/naytzap/gipfelbuch\nLicense: GNU General Public License v3.0"),
