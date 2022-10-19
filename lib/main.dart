@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:testapp/models/MountainActivity.dart';
+import 'package:testapp/screens/settings.dart';
 import 'screens/AddActivity.dart';
 import 'screens/about.dart';
 import 'screens/osmmap.dart';
@@ -25,8 +26,9 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(title: 'Gipfelbuch',),
+        '/settings': (context) => const Settings(),
         '/about': (context) => const About(),
-        '/map': (context) => const OsmMap(),
+        '/map': (context) =>  OsmMap(),
         '/add': (context) => AddActivityForm(null)
       },
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -51,8 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int currentIndex = 0;
 
   final screens = [
-    const ActivityList(),
-    const OsmMap()
+    ActivityList(),
+    OsmMap(),
   ];
 
   refresh(int index) {
@@ -71,15 +73,6 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: const NavDrawer(),
       body: screens[currentIndex],
       bottomNavigationBar: BottomNavBar(notifyParent: refresh,),
-      floatingActionButton: currentIndex==0? FloatingActionButton(
-        onPressed: () async {
-          debugPrint('Tapped add activity');
-          //Navigator.push(context,MaterialPageRoute(builder: (context) => const AddActivityForm())).then((_) => setState(() {}));
-          await Navigator.pushNamed(context, '/add',arguments: MountainActivity(mountainName: "", date: DateTime(1,1,1))).then((_) => setState(() {}));
-        },
-        tooltip: 'Add Activity',
-        child: const Icon(Icons.add),
-      ):null,
-    );
+      );
   }
 }

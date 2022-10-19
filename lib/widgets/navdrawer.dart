@@ -38,7 +38,8 @@ class NavDrawer extends StatelessWidget {
             title: const Text('Settings'),
             onTap: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(msgNotImplemented);
+              //ScaffoldMessenger.of(context).showSnackBar(msgNotImplemented);
+              Navigator.pushNamed(context, '/settings');
             },
           ),
           ListTile(

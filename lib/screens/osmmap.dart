@@ -1,13 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:testapp/database_helper.dart';
+import 'package:testapp/models/MountainActivity.dart';
 
 //import '../models/Activities.dart';
 //import '../models/MountainActivity.dart';
 
 class OsmMap extends StatefulWidget {
-  const OsmMap({Key? key}) : super(key: key);
+  OsmMap({Key? key}) : super(key: key);
 
   @override
   _OsmMapState createState() => _OsmMapState();
@@ -15,7 +18,7 @@ class OsmMap extends StatefulWidget {
 
 class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
   //List<MountainActivity> db = Activities.fetchAll();
-  MapController controller =MapController.customLayer(
+  MapController controller = MapController.customLayer(
     initMapWithUserPosition: false,
     initPosition: GeoPoint(
         latitude: 46.919393,
@@ -25,8 +28,8 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
     customTile: CustomTile(
       sourceName: "opentopomap",
       tileExtension: ".png",
-      minZoomLevel: 1,
-      maxZoomLevel: 20,
+      minZoomLevel: 2,
+      maxZoomLevel: 19,
       urlsServers: [
         TileURLs(
           url: "https://tile.opentopomap.org/",
@@ -70,7 +73,19 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
 */
   @override
   Widget build(BuildContext context) {
+    final act = ModalRoute.of(context)?.settings.arguments;
+    if (act!=null){
+      MountainActivity activity = act as MountainActivity;
+      FutureBuilder<void>(
+        future: controller.setZoom(zoomLevel: 12),
+        initialData: null,
+        builder: (context, snapshot) {
+          return Container();
+        });
+    }
+
     return Scaffold(
+      //appBar: AppBar(title: Text("map"),),
       body: OSMFlutter(
         controller: controller,
         trackMyPosition: false,
@@ -112,6 +127,13 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
           ),
         )),
       ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: (){
+            //mapIsInitialized();
+            drawMountains();
+            debugPrint("map test");
+          },
+          child: Icon(Icons.update_sharp),tooltip: "test"),
     );
   }
 
@@ -119,6 +141,25 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
   Future<void> mapIsReady(bool isReady) async {
     if (isReady) {
       await mapIsInitialized();
+    }
+  }
+
+  Future<void> drawMountains() async {
+    var activities = await DatabaseHelper.instance.getAllActivities();
+    for (MountainActivity act in activities){
+      debugPrint("drawing: ${act.location}");
+      await controller.addMarker(
+        act.location??GeoPoint(latitude: 47.442475, longitude: 8.4680389),
+        markerIcon: MarkerIcon(
+          icon: Icon(
+            Icons.place_rounded,
+            color: Colors.lightGreen,
+            size: 128,
+          ),
+         //iconWidget: Text(act.mountainName),
+        ),
+      );
+
     }
   }
 
@@ -140,7 +181,7 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
         icon: Icon(
           Icons.train,
           color: Colors.orange,
-          size: 36,
+          size: 60,
         ),
       ),
     );
@@ -167,8 +208,8 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
       markerIcon: const MarkerIcon(
         icon: Icon(
           Icons.car_repair,
-          color: Colors.black45,
-          size: 32,
+          color: Colors.red,
+          size: 64,
         ),
       ),
     );

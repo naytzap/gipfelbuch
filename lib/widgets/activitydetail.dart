@@ -98,7 +98,7 @@ class ActivityDetail extends StatelessWidget{
         body: ListView(
           children: [
             const Image(image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg')),
-            Container(height: 10),
+            Container(height: 5),
             ListTile(
                 leading: const Icon(Icons.date_range),
                 title: const Text("Date of visit"),
@@ -120,9 +120,14 @@ class ActivityDetail extends StatelessWidget{
               subtitle: Text("${activity.duration} h"),
             ),
             ListTile(
-              leading: const Icon(Icons.keyboard_arrow_up_outlined),
+              leading: const Icon(Icons.upgrade_outlined),
               title: const Text("Vertical"),
               subtitle: Text("${activity.climb} hm"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.place_rounded),
+              title: const Text("Position"),
+              subtitle: Text("Lat: ${activity.location?.latitude}\nLon: ${activity.location?.longitude}"),
             )
           ],
         )
