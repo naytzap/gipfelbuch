@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:testapp/models/MountainActivity.dart';
 import 'package:testapp/screens/settings.dart';
+import 'package:testapp/widgets/activity_search_delegate.dart';
 import 'screens/AddActivity.dart';
 import 'screens/about.dart';
 import 'screens/osmmap.dart';
@@ -69,6 +70,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showSearch(
+                  context: context,
+                  delegate: ActivitySearchDelegate()
+              );
+            },
+            icon: const Icon(Icons.search),
+          )
+        ],
       ),
       drawer: const NavDrawer(),
       body: screens[currentIndex],
