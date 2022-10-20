@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../database_helper.dart';
-import '../models/MountainActivity.dart';
+import '../models/mountain_activity.dart';
 import 'activity_detail.dart';
 
 class ActivityList extends StatefulWidget {

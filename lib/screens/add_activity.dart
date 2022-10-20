@@ -6,7 +6,7 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:intl/intl.dart';
 
 import '../database_helper.dart';
-import '../models/MountainActivity.dart';
+import '../models/mountain_activity.dart';
 
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
@@ -22,8 +22,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
   final _formKey = GlobalKey<FormState>();
   late bool _editMode = false;
   bool edited = false;
-  late MountainActivity _editedActivity;
-  //late MountainActivity? activity;
   late final TextEditingController _nameCtrl = TextEditingController();
   late final TextEditingController _visitorCtrl = TextEditingController();
   late final TextEditingController _dateCtrl = TextEditingController();
@@ -299,7 +297,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                               },
                               child: Text(
                                 _editMode ? "Edit Activity" : "Add Activity",
-                                style: TextStyle(
+                                style: const TextStyle(
                                     backgroundColor: Colors.lightGreen,
                                     color: Colors.white),
                               )))

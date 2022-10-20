@@ -1,13 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:testapp/database_helper.dart';
-import 'package:testapp/models/MountainActivity.dart';
+import 'package:testapp/models/mountain_activity.dart';
 
-//import '../models/Activities.dart';
-//import '../models/MountainActivity.dart';
+//import '../models/activities.dart';
+//import '../models/mountain_activity.dart';
 
 class OsmMap extends StatefulWidget {
   OsmMap({Key? key}) : super(key: key);
@@ -132,8 +131,8 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
             //mapIsInitialized();
             drawMountains();
             debugPrint("map test");
-          },
-          child: Icon(Icons.update_sharp),tooltip: "test"),
+          },tooltip: "test",
+          child: const Icon(Icons.update_sharp)),
     );
   }
 
@@ -150,7 +149,7 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
       debugPrint("drawing: ${act.location}");
       await controller.addMarker(
         act.location??GeoPoint(latitude: 47.442475, longitude: 8.4680389),
-        markerIcon: MarkerIcon(
+        markerIcon: const MarkerIcon(
           icon: Icon(
             Icons.place_rounded,
             color: Colors.lightGreen,

@@ -4,7 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'models/MountainActivity.dart';
+import 'models/mountain_activity.dart';
 
 class DatabaseHelper {
   static const _databaseName = "Gipfelbuch.db";

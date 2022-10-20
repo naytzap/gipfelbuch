@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:testapp/database_helper.dart';
-import 'package:testapp/models/Activities.dart';
-import 'package:testapp/models/MountainActivity.dart';
+import 'package:testapp/models/activities.dart';
+import 'package:testapp/models/mountain_activity.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -43,19 +43,19 @@ class Settings extends StatelessWidget {
                     alignment: Alignment.center,
                     color: Colors.cyan,
                     height: 50,
-                    child: Text(
+                    child: const Text(
                       "Load initial database",
                       style: TextStyle(fontSize: 20),
                     ),
                   )),
-              SizedBox(height:20),
+              const SizedBox(height:20),
               InkWell(
                   onTap: (){clearDb(context);},
                   child: Container(
                     alignment: Alignment.center,
                     color: Colors.red,
                     height: 50,
-                    child: Text(
+                    child: const Text(
                       "Clear entire database",
                       style: TextStyle(fontSize: 20),
                     ),

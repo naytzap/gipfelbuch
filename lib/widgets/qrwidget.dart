@@ -4,7 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 class QrWidget extends StatelessWidget {
   final String data;
 
-  const QrWidget(this.data);
+  const QrWidget(this.data, {super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 
-import 'MountainActivity.dart';
+import './mountain_activity.dart';
 
 class Activities {
   static final List<MountainActivity> _db = [

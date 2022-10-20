@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:testapp/models/MountainActivity.dart';
+import 'package:testapp/models/mountain_activity.dart';
 import 'package:testapp/screens/settings.dart';
 import 'package:testapp/widgets/activity_search_delegate.dart';
 import 'screens/add_activity.dart';
