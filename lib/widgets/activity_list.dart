@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../database_helper.dart';
 import '../models/MountainActivity.dart';
-import 'activitydetail.dart';
+import 'activity_detail.dart';
 
 class ActivityList extends StatefulWidget {
   static const double imagePadding = 0;

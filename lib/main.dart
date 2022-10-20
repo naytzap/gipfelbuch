@@ -3,11 +3,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:testapp/models/MountainActivity.dart';
 import 'package:testapp/screens/settings.dart';
 import 'package:testapp/widgets/activity_search_delegate.dart';
-import 'screens/AddActivity.dart';
+import 'screens/add_activity.dart';
 import 'screens/about.dart';
 import 'screens/osmmap.dart';
-import 'widgets/ActivityList.dart';
-import 'widgets/bottomnavbar.dart';
+import 'widgets/activity_list.dart';
+import 'widgets/bottom_navbar.dart';
 import 'widgets/navdrawer.dart';
 import 'package:intl/intl.dart';
 
