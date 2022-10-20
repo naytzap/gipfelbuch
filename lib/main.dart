@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => const Settings(),
         '/about': (context) => const About(),
         '/map': (context) =>  OsmMap(),
-        '/add': (context) => AddActivityForm(null)
+        '/add': (context) => AddActivityForm()
       },
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [

@@ -11,8 +11,8 @@ import '../models/mountain_activity.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class AddActivityForm extends StatefulWidget {
-  final MountainActivity? activity;
-  AddActivityForm(this.activity, {super.key});
+  //final int activityId;
+  AddActivityForm(/*this.activityId,*/ {super.key});
 
   @override
   State<StatefulWidget> createState() => _AddActivityFormState();
@@ -80,27 +80,221 @@ class _AddActivityFormState extends State<AddActivityForm> {
     });
   }
 
+  setInputFields(MountainActivity act) {
+    _nameCtrl.text = act.mountainName;
+    _visitorCtrl.text = act.participants ?? "";
+    _dateCtrl.text = DateFormat('dd.MM.yyyy').format(act.date);
+    _distanceCtrl.text = act.distance.toString();
+    _durationCtrl.text = act.duration.toString();
+    _climbCtrl.text = act.climb.toString();
+    _locationCtrl.text =
+        "${act.location?.latitude}, ${act.location?.longitude}";
+  }
+  
+  buildForm(int? actId){
+    double vSpacing = 10;
+    return Form(
+      //padding: const EdgeInsets.all(10),
+      //itemExtent: 70,
+        key: _formKey,
+        child: Padding(
+            padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Mountain Name',
+                      icon: Icon(
+                        Icons.landscape_outlined,
+                      ),
+                    ),
+                    controller: _nameCtrl,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a name';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: vSpacing),
+                  TextField(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Visitors',
+                        icon: Icon(Icons.people_outlined)),
+                    controller: _visitorCtrl,
+                  ),
+                  //InputDatePickerFormField(,firstDate: DateTime(1990,1,1), lastDate: DateTime.now(),
+                  //),
+                  SizedBox(height: vSpacing),
+                  TextFormField(
+                    controller:
+                    _dateCtrl, //editing controller of this TextField
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        icon: Icon(Icons
+                            .calendar_today), //icon of text field
+                        labelText: "Date" //label text of field
+                    ),
+                    readOnly:
+                    true, //set it true, so that user will not able to edit text
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(
+                              1960), //DateTime.now() - not to allow to choose before today.
+                          lastDate: DateTime.now(),
+                          locale: const Locale('de', 'DE'));
+
+                      if (pickedDate != null) {
+                        //print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
+                        String formattedDate =
+                        DateFormat('dd.MM.yyyy')
+                            .format(pickedDate);
+                        debugPrint(
+                            "Selected $formattedDate"); //formatted date output using intl package =>  2021-03-16
+                        //you can implement different kind of Date Format here according to your requirement
+
+                        setState(() {
+                          _dateCtrl.text =
+                              formattedDate; //set output date to TextField value.
+                        });
+                      } else {
+                        debugPrint("Date is not selected");
+                      }
+                    },
+                    validator: (value) {
+                      if (value?.isEmpty ?? false) {
+                        return 'Please select a date';
+                      }
+                    },
+                  ),
+                  SizedBox(height: vSpacing),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Distance [km]',
+                      icon: Icon(
+                        Icons.straighten_outlined,
+                      ),
+                    ),
+                    controller: _distanceCtrl,
+                    validator: (value) {
+                      if ((value?.isNotEmpty ?? false) &&
+                          !(double.tryParse(value!) == null)) {
+                        if (double.tryParse(value)! < 0) {
+                          return 'Insert positive value';
+                        }
+                        return null;
+                      } else if (value?.isNotEmpty ?? false) {
+                        return 'Please enter a positive number!';
+                      }
+                    },
+                  ),
+                  SizedBox(height: vSpacing),
+                  TextField(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Duration [h]',
+                        icon: Icon(Icons.timer_outlined)),
+                    controller: _durationCtrl,
+                  ),
+                  SizedBox(height: vSpacing),
+                  TextField(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Vertical Meters [m]',
+                        icon: Icon(Icons.height_outlined)),
+                    controller: _climbCtrl,
+                  ),
+                  SizedBox(height: vSpacing),
+                  TextField(
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Position',
+                          icon: Icon(Icons.place_rounded)),
+                      controller: _locationCtrl,
+                      readOnly: true,
+                      onTap: () async {
+                        GeoPoint? p = await showSimplePickerLocation(
+                          context: context,
+                          isDismissible: true,
+                          title: "Select Summit Position",
+                          textConfirmPicker: "Select",
+                          initCurrentUserPosition: true,
+                          initZoom: 12,
+                        );
+                        if (p != null) {
+                          String formattedPoint =
+                              "${p.latitude}, ${p.longitude}";
+                          debugPrint("Selected $formattedPoint");
+
+                          setState(() {
+                            _locationCtrl.text =
+                                formattedPoint; //set output date to TextField value.
+                          });
+                        } else {
+                          debugPrint("Date is not selected");
+                        }
+                      }),
+
+                  SizedBox(height: vSpacing),
+                  Container(
+                      color: Colors.lightGreen,
+                      child: TextButton(
+                          onPressed: () {
+                            debugPrint("Add act pressed");
+                            if (_formKey.currentState!.validate()) {
+                              var activity = MountainActivity(
+                                  id: _editMode ? actId! : null,
+                                  mountainName: _nameCtrl.text,
+                                  climb:
+                                  int.tryParse(_climbCtrl.text),
+                                  distance: double.tryParse(
+                                      _distanceCtrl.text),
+                                  duration: double.tryParse(
+                                      _durationCtrl.text),
+                                  location: GeoPoint(
+                                      latitude: 49, longitude: 12),
+                                  participants: _visitorCtrl.text,
+                                  date: DateFormat("dd.MM.yyyy")
+                                      .parse(_dateCtrl.text));
+                              debugPrint(activity.toMap().toString());
+                              if (_editMode) {
+                                DatabaseHelper.instance
+                                    .update(activity);
+                              } else {
+                                DatabaseHelper.instance
+                                    .addActivity(activity);
+                              }
+                              Navigator.pop(context);
+                            } else {
+                              debugPrint("Form not valid!");
+                            }
+                          },
+                          child: Text(
+                            _editMode
+                                ? "Edit Activity"
+                                : "Add Activity",
+                            style: const TextStyle(
+                                backgroundColor: Colors.lightGreen,
+                                color: Colors.white),
+                          )))
+                ],
+              ),
+            )));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final act = ModalRoute.of(context)?.settings.arguments as MountainActivity;
-    _editMode = act.id != null;
-    if (_editMode) {
-      if (!edited) {
-        //this is only once called
-        edited = true;
-        //_editedActivity = act;
-        _nameCtrl.text = act.mountainName;
-        _visitorCtrl.text = act.participants ?? "";
-        _dateCtrl.text = DateFormat('dd.MM.yyyy').format(act.date);
-        _distanceCtrl.text = act.distance.toString();
-        _durationCtrl.text = act.duration.toString();
-        _climbCtrl.text = act.climb.toString();
-        _locationCtrl.text =
-            "${act.location?.latitude}, ${act.location?.longitude}";
-      }
-    }
+    final int? actId = ModalRoute.of(context)?.settings.arguments as int?;
+    _editMode = actId != null;
+    debugPrint("EditMode: $_editMode");
 
-    double vSpacing = 10;
+    
     return Scaffold(
         appBar: AppBar(
           title: _editMode == true
@@ -116,193 +310,20 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   ),
                 ],
         ),
-        body: Form(
-            //padding: const EdgeInsets.all(10),
-            //itemExtent: 70,
-            key: _formKey,
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Mountain Name',
-                          icon: Icon(
-                            Icons.landscape_outlined,
-                          ),
-                        ),
-                        controller: _nameCtrl,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a name';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: vSpacing),
-                      TextField(
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Visitors',
-                            icon: Icon(Icons.people_outlined)),
-                        controller: _visitorCtrl,
-                      ),
-                      //InputDatePickerFormField(,firstDate: DateTime(1990,1,1), lastDate: DateTime.now(),
-                      //),
-                      SizedBox(height: vSpacing),
-                      TextFormField(
-                        controller:
-                            _dateCtrl, //editing controller of this TextField
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            icon:
-                                Icon(Icons.calendar_today), //icon of text field
-                            labelText: "Date" //label text of field
-                            ),
-                        readOnly:
-                            true, //set it true, so that user will not able to edit text
-                        onTap: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(
-                                  1960), //DateTime.now() - not to allow to choose before today.
-                              lastDate: DateTime.now(),
-                              locale: const Locale('de', 'DE'));
-
-                          if (pickedDate != null) {
-                            //print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
-                            String formattedDate =
-                                DateFormat('dd.MM.yyyy').format(pickedDate);
-                            debugPrint(
-                                "Selected $formattedDate"); //formatted date output using intl package =>  2021-03-16
-                            //you can implement different kind of Date Format here according to your requirement
-
-                            setState(() {
-                              _dateCtrl.text =
-                                  formattedDate; //set output date to TextField value.
-                            });
-                          } else {
-                            debugPrint("Date is not selected");
-                          }
-                        },
-                        validator: (value) {
-                          if (value?.isEmpty ?? false) {
-                            return 'Please select a date';
-                          }
-                        },
-                      ),
-                      SizedBox(height: vSpacing),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Distance [km]',
-                          icon: Icon(
-                            Icons.straighten_outlined,
-                          ),
-                        ),
-                        controller: _distanceCtrl,
-                        validator: (value) {
-                          if ((value?.isNotEmpty ?? false) &&
-                              !(double.tryParse(value!) == null)) {
-                            if (double.tryParse(value)! < 0) {
-                              return 'Insert positive value';
-                            }
-                            return null;
-                          } else if (value?.isNotEmpty ?? false) {
-                            return 'Please enter a positive number!';
-                          }
-                        },
-                      ),
-                      SizedBox(height: vSpacing),
-                      TextField(
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Duration [h]',
-                            icon: Icon(Icons.timer_outlined)),
-                        controller: _durationCtrl,
-                      ),
-                      SizedBox(height: vSpacing),
-                      TextField(
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Vertical Meters [m]',
-                            icon: Icon(Icons.height_outlined)),
-                        controller: _climbCtrl,
-                      ),
-                      SizedBox(height: vSpacing),
-                      TextField(
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Position',
-                              icon: Icon(Icons.place_rounded)),
-                          controller: _locationCtrl,
-                          readOnly: true,
-                          onTap: () async {
-                            GeoPoint? p = await showSimplePickerLocation(
-                              context: context,
-                              isDismissible: true,
-                              title: "Select Summit Position",
-                              textConfirmPicker: "Select",
-                              initCurrentUserPosition: true,
-                              initZoom: 12,
-
-                            );
-                            if (p != null) {
-                              String formattedPoint = "${act.location?.latitude}, ${act.location?.longitude}";
-                              debugPrint("Selected $formattedPoint");
-
-                              setState(() {
-                                _locationCtrl.text =
-                                    formattedPoint; //set output date to TextField value.
-                              });
-                            } else {
-                              debugPrint("Date is not selected");
-                            }
-                          }),
-
-                      SizedBox(height: vSpacing),
-                      Container(
-                          color: Colors.lightGreen,
-                          child: TextButton(
-                              onPressed: () {
-                                debugPrint("Add act pressed");
-                                if (_formKey.currentState!.validate()) {
-                                  var activity = MountainActivity(
-                                      id: _editMode ? act.id : null,
-                                      mountainName: _nameCtrl.text,
-                                      climb: int.tryParse(_climbCtrl.text),
-                                      distance:
-                                          double.tryParse(_distanceCtrl.text),
-                                      duration:
-                                          double.tryParse(_durationCtrl.text),
-                                      location:
-                                          GeoPoint(latitude: 49, longitude: 12),
-                                      participants: _visitorCtrl.text,
-                                      date: DateFormat("dd.MM.yyyy")
-                                          .parse(_dateCtrl.text));
-                                  debugPrint(activity.toMap().toString());
-                                  if (_editMode) {
-                                    DatabaseHelper.instance.update(activity);
-                                  } else {
-                                    DatabaseHelper.instance
-                                        .addActivity(activity);
-                                  }
-                                  Navigator.pop(context);
-                                } else {
-                                  debugPrint("Form not valid!");
-                                }
-                              },
-                              child: Text(
-                                _editMode ? "Edit Activity" : "Add Activity",
-                                style: const TextStyle(
-                                    backgroundColor: Colors.lightGreen,
-                                    color: Colors.white),
-                              )))
-                    ],
-                  ),
-                ))));
-  }
-}
+        body: _editMode? FutureBuilder(
+            future: DatabaseHelper.instance.getActivity(actId!),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Text("No data");
+              }
+              MountainActivity act = snapshot.data as MountainActivity;
+              if (_editMode && !edited) {
+                edited = true;
+                setInputFields(act);
+              }
+              return buildForm(act.id);
+            }
+            ) : buildForm(null)
+    );
+  } //build()
+} //class

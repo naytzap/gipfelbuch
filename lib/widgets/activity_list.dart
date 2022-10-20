@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import '../database_helper.dart';
 import '../models/mountain_activity.dart';
 import 'activity_detail.dart';
@@ -14,7 +16,7 @@ class ActivityList extends StatefulWidget {
 
 class _ActivityListState extends State<ActivityList> {
   //final List<MountainActivity> db = Activities.fetchAll();
-  final double _height = 115;
+  static const double _height = 115;
 
   reloadList() {
     //this hast to be a stateful widget
@@ -52,7 +54,7 @@ class _ActivityListState extends State<ActivityList> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => ActivityDetail(
-                                          snapshot.data!.elementAt(index)))).then((_) => setState(() {}));
+                                          snapshot.data!.elementAt(index).id!))).then((_) => setState(() {}));
                             },
                             child: SizedBox(
                                 width: 250,
@@ -88,13 +90,25 @@ class _ActivityListState extends State<ActivityList> {
                                           Padding(
                                               padding: const EdgeInsets.all(
                                                   ActivityList.imagePadding),
-                                              child: Image(
-                                                  height: _height -
-                                                      2 *
-                                                          ActivityList
-                                                              .imagePadding,
-                                                  image: const AssetImage(
-                                                      'assets/11_Langkofel_group_Dolomites_Italy.jpg')))
+                                              child: FutureBuilder(
+                                                  future: loadImage(snapshot.data!.elementAt(index).id!),
+                                                    builder: (context, snapshot) {
+                                                    if(!snapshot.hasData) {
+                                                      return const Image(
+                                                          height: _height,
+                                                          image: AssetImage(
+                                                              'assets/11_Langkofel_group_Dolomites_Italy.jpg'));
+                                                    }else {
+                                                      //return  DecorationImage(fit: BoxFit.f, image: FileImage(snapshot.data!));
+                                                      return SizedBox(height: _height, width: 154, child:  Image.file(snapshot.data!,fit: BoxFit.fill ));
+                                                    }
+                                                  }
+                                                  ),
+
+
+                                                  )
+
+
                                         ])
                                   ],
                                 ))));
@@ -104,13 +118,18 @@ class _ActivityListState extends State<ActivityList> {
             onPressed: () async {
               debugPrint('Tapped add activity');
               //Navigator.push(context,MaterialPageRoute(builder: (context) => const AddActivityForm())).then((_) => setState(() {}));
-              await Navigator.pushNamed(context, '/add',arguments: MountainActivity(mountainName: "", date: DateTime(1,1,1))).then((_) => setState(() {}));
+              await Navigator.pushNamed(context, '/add',arguments: null).then((_) => setState(() {}));
             },
             tooltip: 'Add Activity',
             child: const Icon(Icons.add),
 
         ),
     );
+  }
 
+  Future<File?> loadImage(int activityId) async{
+    final directory = await getApplicationDocumentsDirectory();
+    File image = File('${directory.path}/activity_$activityId');
+    return await image.exists() ? image : null;
   }
 }
