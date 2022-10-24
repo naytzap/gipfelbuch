@@ -22,6 +22,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
   final _formKey = GlobalKey<FormState>();
   late bool _editMode = false;
   bool edited = false;
+  GeoPoint? _location;
   late final TextEditingController _nameCtrl = TextEditingController();
   late final TextEditingController _visitorCtrl = TextEditingController();
   late final TextEditingController _dateCtrl = TextEditingController();
@@ -67,15 +68,17 @@ class _AddActivityFormState extends State<AddActivityForm> {
     setState(() {
       //_scanBarcode = barcodeScanRes;
       debugPrint(barcodeScanRes.toString());
-      var activity = jsonDecode(barcodeScanRes.toString());
+      var act = jsonDecode(barcodeScanRes.toString());
       //Todo: error handling
-      _nameCtrl.text = activity["mountainName"];
-      _visitorCtrl.text = activity["participants"];
+      _nameCtrl.text = act["mountainName"];
+      _visitorCtrl.text = act["participants"];
       _dateCtrl.text = DateFormat("dd.MM.yyyy")
-          .format(DateTime.fromMillisecondsSinceEpoch(activity["date"]));
-      _distanceCtrl.text = activity["distance"].toString();
-      _durationCtrl.text = activity["duration"].toString();
-      _climbCtrl.text = activity["climb"].toString();
+          .format(DateTime.fromMillisecondsSinceEpoch(act["date"]));
+      _distanceCtrl.text = act["distance"].toString();
+      _durationCtrl.text = act["duration"].toString();
+      _climbCtrl.text = act["climb"].toString();
+      _locationCtrl.text = "${act["latitude"]}, ${act["longitude"]}";
+      _location = GeoPoint(latitude: act["latitude"], longitude: act["longitude"]);
       //location
     });
   }
@@ -89,6 +92,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
     _climbCtrl.text = act.climb.toString();
     _locationCtrl.text =
         "${act.location?.latitude}, ${act.location?.longitude}";
+    if (act.location?.latitude != null && act.location?.longitude != null) {
+      _location = GeoPoint(latitude: act.location!.latitude, longitude: act.location!.longitude);
+    }
   }
   
   buildForm(int? actId){
@@ -126,8 +132,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         icon: Icon(Icons.people_outlined)),
                     controller: _visitorCtrl,
                   ),
-                  //InputDatePickerFormField(,firstDate: DateTime(1990,1,1), lastDate: DateTime.now(),
-                  //),
                   SizedBox(height: vSpacing),
                   TextFormField(
                     controller:
@@ -138,8 +142,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             .calendar_today), //icon of text field
                         labelText: "Date" //label text of field
                     ),
-                    readOnly:
-                    true, //set it true, so that user will not able to edit text
+                    readOnly: true, //set it true, so that user will not able to edit text
                     onTap: () async {
                       DateTime? pickedDate = await showDatePicker(
                           context: context,
@@ -182,6 +185,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       ),
                     ),
                     controller: _distanceCtrl,
+                    keyboardType: TextInputType.number,
                     validator: (value) {
                       if ((value?.isNotEmpty ?? false) &&
                           !(double.tryParse(value!) == null)) {
@@ -201,6 +205,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         labelText: 'Duration [h]',
                         icon: Icon(Icons.timer_outlined)),
                     controller: _durationCtrl,
+                    keyboardType: TextInputType.number,
                   ),
                   SizedBox(height: vSpacing),
                   TextField(
@@ -209,6 +214,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         labelText: 'Vertical Meters [m]',
                         icon: Icon(Icons.height_outlined)),
                     controller: _climbCtrl,
+                    keyboardType: TextInputType.number,
                   ),
                   SizedBox(height: vSpacing),
                   TextField(
@@ -231,7 +237,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                           String formattedPoint =
                               "${p.latitude}, ${p.longitude}";
                           debugPrint("Selected $formattedPoint");
-
+                          _location = p;
                           setState(() {
                             _locationCtrl.text =
                                 formattedPoint; //set output date to TextField value.
@@ -257,8 +263,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                       _distanceCtrl.text),
                                   duration: double.tryParse(
                                       _durationCtrl.text),
-                                  location: GeoPoint(
-                                      latitude: 49, longitude: 12),
+                                  location: _location,
                                   participants: _visitorCtrl.text,
                                   date: DateFormat("dd.MM.yyyy")
                                       .parse(_dateCtrl.text));

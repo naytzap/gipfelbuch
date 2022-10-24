@@ -14,8 +14,7 @@ import 'qrwidget.dart';
 
 class ActivityDetail extends StatefulWidget{
   final int activityId;
-
-  ActivityDetail(this.activityId, {super.key});
+  const ActivityDetail(this.activityId, {super.key});
 
   @override
   State<ActivityDetail> createState() => _ActivityDetailState();
@@ -128,7 +127,7 @@ class _ActivityDetailState extends State<ActivityDetail> {
               body: ListView(
                 children: [
                   InkWell(
-                      onTap: pickImage,
+                      onTap: ()async{await openImageModal(context);},//pickImage,
                       child: image!=null ?Image.file(image) : const Image(image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))
                   ),
                   Container(height: 5),
@@ -193,29 +192,30 @@ class _ActivityDetailState extends State<ActivityDetail> {
       if (img == null) return;
       debugPrint("Chose: ${img.path}");
       final imgSaved = await saveImage(img.path,widget.activityId);
-      setState((){});
+      setState((){debugPrint("(setState) chose image");});
     } on PlatformException catch(e) {
       print('Failed to pick image: $e');
     }
   }
 
-  /*
-  openImageModal()
-  {
-    return showModalBottomSheet(
+
+  openImageModal(context) async {
+     showModalBottomSheet(
         context: context,
         builder: (context) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.image),
-              title: const Text('Open Gallery'),
-              onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+              title: const Text('Chose image from gallery'),
+              //onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+              onTap: ()async {await pickImage().then(Navigator.of(context).pop);},
             )
           ],
         )
-    )
-  }*/
+     );
+
+  }
 
   Future<File> saveImage(String oldImagePath, int activityId) async{
     final directory = await getApplicationDocumentsDirectory();
