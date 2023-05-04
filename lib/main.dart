@@ -72,8 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: [
           IconButton(
-            onPressed: () {
-              showSearch(
+            onPressed: ()  async {
+              await showSearch(
                   context: context,
                   delegate: ActivitySearchDelegate()
               );
