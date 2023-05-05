@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:testapp/database_helper.dart';
@@ -11,77 +13,164 @@ import 'package:testapp/models/mountain_activity.dart';
 class Settings extends StatelessWidget {
   const Settings({super.key});
 
-  void loadDb(BuildContext context) {
-    debugPrint("adding default values");
-    List<MountainActivity> list = Activities.fetchAll();
-    for (MountainActivity a in list) {
-      DatabaseHelper.instance.addActivity(a);
+  Future<void> loadDemoDb(BuildContext context) async {
+    var list = await DatabaseHelper.instance.getAllActivities();
+    if (list.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text("Demo can only be loaded if there are no activities!")));
+    } else {
+      debugPrint("adding default values");
+      List<MountainActivity> list = Activities.fetchAll();
+      for (MountainActivity a in list) {
+        DatabaseHelper.instance.addActivity(a);
+      }
     }
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   void clearDb(BuildContext context) async {
     debugPrint("clearing database");
-    List<MountainActivity> list = await DatabaseHelper.instance
-        .getAllActivities();
-    for (MountainActivity a in list) {
-      DatabaseHelper.instance.delete(a.id ?? 9999999);
-    }
-    Navigator.pop(context);
+      Widget deleteButton = TextButton(
+        child: const Text("Delete", style: TextStyle(color: Colors.red)),
+        onPressed:  () async {
+          //Navigator.pop(context);
+          List<MountainActivity> list =  await DatabaseHelper.instance.getAllActivities();
+          for (MountainActivity a in list) {
+            DatabaseHelper.instance.delete(a.id!);
+          }
+          Navigator.pop(context, true);
+        },
+      );
+
+      AlertDialog alert = AlertDialog(
+        title: const Text("Delete database?"),
+        content: const Text("Are you sure? This can't be undone!\n(maybe do a export first!)"),
+        actions: [
+          deleteButton,
+          TextButton(child: const Text("Cancel"), onPressed:  () {Navigator.of(context).pop();}),
+        ],
+      );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+
+    //
   }
 
-  Future<void> writeFile(String data, String name) async {
+  void clearCachedImgs(BuildContext context) {
+    Widget deleteButton = TextButton(
+      child: const Text("Delete", style: TextStyle(color: Colors.red)),
+      onPressed:  () async {
+        // TODO: remove images
+        final directory = await getApplicationDocumentsDirectory();
+        print(directory.path);
+        //try to delete 5000 ids (bad practice...)
+        for(var i=0; i<1000; i++) {
+          File image =  File('${directory.path}/activity_$i');
+          if (await image.exists() )
+          {
+              image.delete();
+          }
+        }
+        var count = 0;
+        Navigator.popUntil(context, (route) {
+          return count++ == 2;
+        });
+      },
+    );
+
+
+    AlertDialog alert = AlertDialog(
+      title: const Text("Delete cached images?"),
+      content: const Text("Are you sure? This can't be undone!\n(won't delete images of your gallery :) )"),
+      actions: [
+        deleteButton,
+        TextButton(child: const Text("Cancel"), onPressed:  () {Navigator.of(context).pop();}),
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  Future<void> writeFile(String data, String filePath) async {
     // storage permission ask
     var status = await Permission.storage.status;
     if (!status.isGranted) {
       await Permission.storage.request();
     }
-    // the downloads folder path
-    //Directory tempDir = await DownloadsPathProvider.downloadsDirectory;
-    //String tempPath = tempDir.path;
-    var filePath = '/storage/emulated/0/Download/' + '/$name';
-    //
     File(filePath).writeAsString(data);
-    // the data
-    //var bytes = ByteData.view(data.buffer);
-    //final buffer = bytes.buffer;
-    // save the data in the path
-    //return File(filePath).writeAsBytes(buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
   }
-
 
   Future<void> importDb(BuildContext context) async {
     debugPrint("importing from file... not implemented");
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
 
     if (result != null) {
       File file = File(result.files.single.path ?? "");
       List<dynamic> data = json.decode(await file.readAsString());
       print(data);
-      data.forEach((element){
+      var imports = 0;
+      data.forEach((element) {
         try {
           MountainActivity me = MountainActivity.fromMap(element);
-          DatabaseHelper.instance.addActivity(me);
-          print("Added new activity: " + me.mountainName);
-        } catch (e) {
-          print(e);
-        }
+          if (me.id != null &&
+              DatabaseHelper.instance.getActivity(me.id!) != null) {
+            //a activity with this id already exists
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: const Duration(milliseconds: 750),
+                content: Text(
+                    "Skipped ${me.mountainName} (id ${me.id} not unique!)")));
+          } else {
+            DatabaseHelper.instance.addActivity(me);
+            print("Added new activity: ${me.mountainName}");
+            imports++;
+          }
+        } catch (e) {}
       });
-
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Imported $imports activities.")));
     } else {
       // User canceled the picker
     }
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
-
 
   Future<void> exportDb(BuildContext context) async {
     debugPrint("export db to file...");
     var list = await DatabaseHelper.instance.getAllActivities();
-    var data = json.encode(list.map((e) => e.toMap()).toList());
-    writeFile(data.toString(), 'GB_export.json');
-    Navigator.pop(context);
+    if (list.isNotEmpty) {
+      var data = json.encode(list.map((e) => e.toMap()).toList());
+      var now = DateTime.now();
+      var formatter = DateFormat('yyMMddhhmm');
+      String formattedDate = formatter.format(now);
+      var filePath =
+          "/storage/emulated/0/Download/GipfelBuchDBexp_$formattedDate.json";
+      writeFile(data.toString(), filePath);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(seconds: 7),
+          content: Text("Exported ${list.length} activities to $filePath")));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("DB empty, nothing to export!")));
+    }
+    Navigator.pop(context, false);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -94,17 +183,60 @@ class Settings extends StatelessWidget {
                 padding: const EdgeInsets.all(25),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
+                  children: [
+                    const SizedBox(height: 20),
                     InkWell(
                         onTap: () {
-                          loadDb(context);
+                          loadDemoDb(context);
                         },
                         child: Container(
                           alignment: Alignment.center,
                           color: Colors.cyan,
                           height: 50,
                           child: const Text(
-                            "Load initial database",
+                            "Load demo database",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        )),
+                    const SizedBox(height: 20),
+                    InkWell(
+                        onTap: () {
+                          exportDb(context);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          color: Colors.orange,
+                          height: 50,
+                          child: const Text(
+                            "Export database",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        )),
+                    const SizedBox(height: 20),
+                    InkWell(
+                        onTap: () {
+                          importDb(context);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          color: Colors.lightGreen,
+                          height: 50,
+                          child: const Text(
+                            "Import database",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        )),
+                    const SizedBox(height: 60),
+                    InkWell(
+                        onTap: () {
+                          clearCachedImgs(context);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          color: Colors.red,
+                          height: 50,
+                          child: const Text(
+                            "Clear cached images",
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -123,33 +255,6 @@ class Settings extends StatelessWidget {
                           ),
                         )),
                     const SizedBox(height: 20),
-                    InkWell(
-                        onTap: () {
-                          exportDb(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.deepPurple,
-                          height: 50,
-                          child: const Text(
-                            "Export database",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                    const SizedBox(height: 20),
-                    InkWell(
-                        onTap: () {
-                          importDb(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.lightGreen,
-                          height: 50,
-                          child: const Text(
-                            "Import database2",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ))
                   ],
                 ))));
   }

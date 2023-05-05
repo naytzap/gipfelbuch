@@ -5,8 +5,8 @@ class NavDrawer extends StatelessWidget {
   static const msgNotImplemented = SnackBar(
     content: Text('Feature not implemented :/'),
   );
-
-  const NavDrawer({super.key});
+  final Function parentFunc;
+  const NavDrawer({super.key, required this.parentFunc});
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +36,13 @@ class NavDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
-            onTap: () {
+            onTap: () async {
               Navigator.of(context).pop();
               //ScaffoldMessenger.of(context).showSnackBar(msgNotImplemented);
-              Navigator.pushNamed(context, '/settings');
+              var refresh = await Navigator.pushNamed(context, '/settings');
+              if(refresh != null && refresh==true) {
+                parentFunc();
+              }
             },
           ),
           ListTile(

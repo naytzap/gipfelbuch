@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../database_helper.dart';
 import '../models/mountain_activity.dart';
+import '../screens/fmap.dart';
 import 'qrwidget.dart';
 
 class ActivityDetail extends StatefulWidget{
@@ -81,6 +83,7 @@ class _ActivityDetailState extends State<ActivityDetail> {
           }*/
           MountainActivity activity = snapshot.data![0] as MountainActivity;
           File? image = snapshot.data![1] as File?;
+          const TextStyle dfStyle = TextStyle(fontSize: 20);
 
           return Scaffold(
               appBar: AppBar(
@@ -89,9 +92,14 @@ class _ActivityDetailState extends State<ActivityDetail> {
                   InkWell(
                     child:const Icon(Icons.map),
                     onTap: () {
-                      debugPrint("Show on map not implemented");
-                    },
-                  ),
+
+                      if(activity.location != null) {
+                        var llPos = LatLng(activity.location!.latitude, activity.location!.longitude);
+                        debugPrint("Show map on $llPos");
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => FMap(initPos: llPos, key: UniqueKey())));
+                      }
+                    }),
                   Container(width: 20,),
                   InkWell(
                     child:const Icon(Icons.qr_code),
@@ -134,32 +142,38 @@ class _ActivityDetailState extends State<ActivityDetail> {
                   ListTile(
                     leading: const Icon(Icons.date_range),
                     title: const Text("Date of visit"),
-                    subtitle: Text(DateFormat('dd.MM.yyyy').format(activity.date)),
+                    subtitle: Text(DateFormat('dd.MM.yyyy').format(activity.date),style: dfStyle),
                   ),
                   ListTile(
                     leading: const Icon(Icons.people),
                     title: const Text("Visitors"),
-                    subtitle: Text(activity.participants??""),
+                    subtitle: Text(activity.participants??"",style: dfStyle),
                   ),
                   ListTile(
                     leading: const Icon(Icons.arrow_forward),
                     title: const Text("Distance"),
-                    subtitle: Text("${activity.distance} km"),
+                    subtitle: Text("${activity.distance} km",style: dfStyle,),
                   ),
                   ListTile(
                     leading: const Icon(Icons.timer),
                     title: const Text("Duration"),
-                    subtitle: Text("${activity.duration} h"),
+                    subtitle: Text("${activity.duration} h", style: dfStyle,),
                   ),
                   ListTile(
                     leading: const Icon(Icons.upgrade_outlined),
                     title: const Text("Vertical"),
-                    subtitle: Text("${activity.climb} hm"),
+                    subtitle: Text("${activity.climb} hm", style: dfStyle,),
                   ),
                   ListTile(
                     leading: const Icon(Icons.place_rounded),
                     title: const Text("Position"),
-                    subtitle: Text("Lat: ${activity.location?.latitude}\nLon: ${activity.location?.longitude}"),
+                    subtitle: Text("lat:\t\t\t${activity.location?.latitude}\nlon:\t\t${activity.location?.longitude}",style: dfStyle,),
+                    onTap: (){
+                      if(activity.location!=null) {
+                        postClipboard(
+                            "${activity.location?.latitude}, ${activity.location
+                                ?.longitude}", context);
+                      }},
                   )
                 ],
               )
@@ -229,5 +243,11 @@ class _ActivityDetailState extends State<ActivityDetail> {
     final directory = await getApplicationDocumentsDirectory();
     File image = File('${directory.path}/activity_$activityId');
     return await image.exists() ? image : null;
+  }
+
+  postClipboard(String txt, context) {
+    Clipboard.setData(ClipboardData(text: txt)).then((_){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Position copied to clipboard")));
+    });
   }
 }

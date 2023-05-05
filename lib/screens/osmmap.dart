@@ -21,8 +21,7 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
     initMapWithUserPosition: false,
     initPosition: GeoPoint(
         latitude: 46.919393,
-        longitude:
-        11.072966), //GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
+        longitude: 11.072966), //GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
     //areaLimit: BoundingBox( east: 10.4922941, north: 47.8084648, south: 45.817995, west: 5.9559113,),
     customTile: CustomTile(
       sourceName: "opentopomap",
@@ -129,6 +128,7 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
       floatingActionButton: FloatingActionButton(
           onPressed: (){
             //mapIsInitialized();
+            print("map Button");
             drawMountains();
             debugPrint("map test");
           },tooltip: "test",
@@ -140,6 +140,7 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
   Future<void> mapIsReady(bool isReady) async {
     if (isReady) {
       await mapIsInitialized();
+      await drawMountains();
     }
   }
 
@@ -147,17 +148,19 @@ class _OsmMapState extends State<OsmMap>  with OSMMixinObserver{
     var activities = await DatabaseHelper.instance.getAllActivities();
     for (MountainActivity act in activities){
       debugPrint("drawing: ${act.location}");
-      await controller.addMarker(
-        act.location??GeoPoint(latitude: 47.442475, longitude: 8.4680389),
-        markerIcon: const MarkerIcon(
-          icon: Icon(
-            Icons.place_rounded,
-            color: Colors.lightGreen,
-            size: 128,
+      if(act.location!=null) {
+        await controller.addMarker(
+          act.location ?? GeoPoint(latitude: 47.442475, longitude: 8.4680389),
+          markerIcon: MarkerIcon(
+            icon: const Icon(
+              Icons.place_rounded,
+              color: Colors.lightGreen,
+              size: 128,
+            ),
+            //iconWidget: Text(act.mountainName ?? "")
           ),
-         //iconWidget: Text(act.mountainName),
-        ),
-      );
+        );
+      }
 
     }
   }

@@ -8,7 +8,7 @@ import 'activity_detail.dart';
 
 class ActivityList extends StatefulWidget {
   static const double imagePadding = 0;
-  ActivityList({super.key});
+  ActivityList({super.key,});
 
   @override
   State<ActivityList> createState() => _ActivityListState();
@@ -104,11 +104,7 @@ class _ActivityListState extends State<ActivityList> {
                                                     }
                                                   }
                                                   ),
-
-
                                                   )
-
-
                                         ])
                                   ],
                                 ))));

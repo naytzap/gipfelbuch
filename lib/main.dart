@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:testapp/models/mountain_activity.dart';
+import 'package:testapp/screens/fmap.dart';
 import 'package:testapp/screens/settings.dart';
 import 'package:testapp/widgets/activity_search_delegate.dart';
 import 'screens/add_activity.dart';
 import 'screens/about.dart';
-import 'screens/osmmap.dart';
+//import 'screens/osmmap.dart';
 import 'widgets/activity_list.dart';
 import 'widgets/bottom_navbar.dart';
 import 'widgets/navdrawer.dart';
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: 'Gipfelbuch',),
         '/settings': (context) => const Settings(),
         '/about': (context) => const About(),
-        '/map': (context) =>  OsmMap(),
+        '/map': (context) =>  FMap(),
         '/add': (context) => AddActivityForm()
       },
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -50,18 +50,25 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //int _counter = 0;
   int currentIndex = 0;
-
-  final screens = [
+  var screens = [
     ActivityList(),
-    OsmMap(),
+    FMap(),
   ];
 
-  refresh(int index) {
+  changeScreen(int index) {
     setState(() {
-      debugPrint("Changed main index: $index");
-      currentIndex = index;
+      if(currentIndex!=index) {
+        debugPrint("Changed main index: $index");
+        currentIndex = index;
+      }
+    });
+  }
+
+  refresh() {
+    setState((){
+      //has to be done to redraw screen, best option?
+      screens=[ActivityList(),FMap()];
     });
   }
 
@@ -82,9 +89,9 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
-      drawer: const NavDrawer(),
+      drawer: NavDrawer(parentFunc: refresh,),
       body: screens[currentIndex],
-      bottomNavigationBar: BottomNavBar(notifyParent: refresh,),
+      bottomNavigationBar: BottomNavBar(notifyParent: changeScreen,),
       );
   }
 }

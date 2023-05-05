@@ -52,6 +52,6 @@ class MountainActivity {
         distance: m['distance'],
         duration: m['duration'],
         climb: m['climb'],
-        location: GeoPoint(latitude: m['latitude'], longitude: m['longitude']));
+        location: (m['latitude']!=null && m['longitude']!=null) ? GeoPoint(latitude: m['latitude'], longitude: m['longitude']) : null);
   }
 }
