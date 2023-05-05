@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:testapp/database_helper.dart';
 import 'package:testapp/models/activities.dart';
 import 'package:testapp/models/mountain_activity.dart';
+import 'package:collection/collection.dart'; //firstwhereornull
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -39,7 +39,10 @@ class Settings extends StatelessWidget {
           for (MountainActivity a in list) {
             DatabaseHelper.instance.delete(a.id!);
           }
-          Navigator.pop(context, true);
+          var count = 0;
+          Navigator.popUntil(context, (route) {
+            return count++ == 2;
+          });
         },
       );
 
@@ -123,27 +126,35 @@ class Settings extends StatelessWidget {
     if (result != null) {
       File file = File(result.files.single.path ?? "");
       List<dynamic> data = json.decode(await file.readAsString());
-      print(data);
+      var existingActivities = await DatabaseHelper.instance.getAllActivities();
+      //debugPrint(data);
       var imports = 0;
-      data.forEach((element) {
-        try {
-          MountainActivity me = MountainActivity.fromMap(element);
-          if (me.id != null &&
-              DatabaseHelper.instance.getActivity(me.id!) != null) {
-            //a activity with this id already exists
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                duration: const Duration(milliseconds: 750),
-                content: Text(
-                    "Skipped ${me.mountainName} (id ${me.id} not unique!)")));
-          } else {
-            DatabaseHelper.instance.addActivity(me);
-            print("Added new activity: ${me.mountainName}");
+      for (var element in data)  {
+          MountainActivity impAct = MountainActivity.fromMap(element);
+          MountainActivity? match = existingActivities.firstWhereOrNull((e) => (e.mountainName == impAct.mountainName || e.date == impAct.date));
+          if (match==null) {
+            var id = await DatabaseHelper.instance.addActivity(
+                MountainActivity(
+                    id: null,
+                    mountainName: impAct.mountainName,
+                    participants: impAct.participants,
+                    date: impAct.date,
+                    distance: impAct.distance,
+                    duration: impAct.duration,
+                    climb: impAct.climb,
+                    location: impAct.location
+                ));
+            debugPrint("Added new activity: ${impAct.mountainName} (id: $id)");
             imports++;
+          } else {/*
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    duration: const Duration(milliseconds: 750),
+                    content: Text("Skipped ${impAct.mountainName} (${impAct.date} already exists!)")));*/
           }
-        } catch (e) {}
-      });
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Imported $imports activities.")));
+          SnackBar(content: Text("Imported $imports/${data.length} activities.")));
     } else {
       // User canceled the picker
     }

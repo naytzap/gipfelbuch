@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:testapp/screens/fmap.dart';
 import 'package:testapp/screens/settings.dart';
+import 'package:testapp/screens/statistics.dart';
 import 'package:testapp/widgets/activity_search_delegate.dart';
 import 'screens/add_activity.dart';
 import 'screens/about.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: 'Gipfelbuch',),
         '/settings': (context) => const Settings(),
         '/about': (context) => const About(),
+        '/stats': (context) => Statistics(),
         '/map': (context) =>  FMap(),
         '/add': (context) => AddActivityForm()
       },
@@ -77,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions: [
+        /*actions: [
           IconButton(
             onPressed: ()  async {
               await showSearch(
@@ -87,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             icon: const Icon(Icons.search),
           )
-        ],
+        ],*/
       ),
       drawer: NavDrawer(parentFunc: refresh,),
       body: screens[currentIndex],

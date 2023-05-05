@@ -29,8 +29,8 @@ class NavDrawer extends StatelessWidget {
             leading: const Icon(Icons.bar_chart),
             title: const Text('Statistics'),
             onTap: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(msgNotImplemented);
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/stats');
             },
           ),
           ListTile(

@@ -147,7 +147,7 @@ class _ActivityDetailState extends State<ActivityDetail> {
                   ListTile(
                     leading: const Icon(Icons.people),
                     title: const Text("Visitors"),
-                    subtitle: Text(activity.participants??"",style: dfStyle),
+                    subtitle: Text(activity.participants??"you'll never walk alone",style: dfStyle),
                   ),
                   ListTile(
                     leading: const Icon(Icons.arrow_forward),
