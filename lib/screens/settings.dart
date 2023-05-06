@@ -66,21 +66,39 @@ class Settings extends StatelessWidget {
     //
   }
 
+  void clearThumbs(BuildContext context) async {
+    final directory = await getApplicationDocumentsDirectory();
+    var counter = 0;
+    for(var i=0; i<1000; i++) {
+      File image =  File('${directory.path}/activity_${i}_thumbnail');
+      if(await image.exists()) {
+        debugPrint("Deleted ${image.path}");
+        image.delete();
+        counter++;
+      }
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Deleted $counter thumbnails")));
+  }
+
   void clearCachedImgs(BuildContext context) {
     Widget deleteButton = TextButton(
       child: const Text("Delete", style: TextStyle(color: Colors.red)),
       onPressed:  () async {
-        // TODO: remove images
+        clearThumbs(context);
         final directory = await getApplicationDocumentsDirectory();
-        print(directory.path);
         //try to delete 5000 ids (bad practice...)
+        var counter = 0;
         for(var i=0; i<1000; i++) {
           File image =  File('${directory.path}/activity_$i');
-          if (await image.exists() )
-          {
-              image.delete();
+          if(await image.exists()) {
+            debugPrint("Deleted ${image.path}");
+            image.delete();
+            counter++;
           }
         }
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Deleted $counter cached images")));
         var count = 0;
         Navigator.popUntil(context, (route) {
           return count++ == 2;
@@ -216,10 +234,10 @@ class Settings extends StatelessWidget {
                         },
                         child: Container(
                           alignment: Alignment.center,
-                          color: Colors.orange,
+                          color: Colors.teal,
                           height: 50,
                           child: const Text(
-                            "Export database",
+                            "Export data to JSON",
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -233,7 +251,7 @@ class Settings extends StatelessWidget {
                           color: Colors.lightGreen,
                           height: 50,
                           child: const Text(
-                            "Import database",
+                            "Import data from JSON",
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -247,7 +265,21 @@ class Settings extends StatelessWidget {
                           color: Colors.red,
                           height: 50,
                           child: const Text(
-                            "Clear cached images",
+                            "Delete cached images",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        )),
+                    const SizedBox(height: 60),
+                    InkWell(
+                        onTap: () {
+                          clearThumbs(context);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          color: Colors.orange,
+                          height: 50,
+                          child: const Text(
+                            "Delete cached thumbnails",
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -261,7 +293,7 @@ class Settings extends StatelessWidget {
                           color: Colors.red,
                           height: 50,
                           child: const Text(
-                            "Clear entire database",
+                            "Delete database",
                             style: TextStyle(fontSize: 20),
                           ),
                         )),

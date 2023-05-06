@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
@@ -245,6 +246,11 @@ class _ActivityDetailState extends State<ActivityDetail> {
     //final fileExtension = extension(oldImagePath);
     final name = basename('activity_$activityId');//.$fileExtension');
     final newImage = File('${directory.path}/$name');
+    //we also need to create/update the thumbnail!
+    var newThumb =  await FlutterNativeImage.compressImage(oldImagePath,quality: 30);
+    //ImageProperties props = await FlutterNativeImage.getImageProperties(image.path);
+    debugPrint("created a new thumb for $activityId");
+    newThumb.copy("${newImage.path}_thumbnail");
     return File(oldImagePath).copy(newImage.path);
   }
 

@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: 'Gipfelbuch',),
         '/settings': (context) => const Settings(),
         '/about': (context) => const About(),
-        '/stats': (context) => Statistics(),
+        '/stats': (context) => const Statistics(),
         '/map': (context) =>  FMap(),
         '/add': (context) => AddActivityForm()
       },

@@ -23,8 +23,10 @@ class _FMapState extends State<FMap> {
   List<Marker> allMarkers = [];
 
   Marker createMountainMarker(MountainActivity act,context) {
+    var pos = LatLng(act.location!.latitude,act.location!.longitude);
+    bool marked = (widget.initPos!=null && widget.initPos==pos) ? true : false;
     return Marker(
-          point: LatLng(act.location!.latitude,act.location!.longitude),
+          point: pos,
           builder: (context) => GestureDetector(
               onTap: (){
                 //ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Tap1")));
@@ -32,8 +34,8 @@ class _FMapState extends State<FMap> {
                     builder: (context) => ActivityDetail(act.id!))).then((_) => setState(() {}));
               },
               child: CircleAvatar(
-                        backgroundColor: Colors.teal,
-                        child: Text(act.mountainName.substring(0,3).toUpperCase(),style: TextStyle(fontSize: 10),),
+                        backgroundColor: marked ? Colors.orange.withOpacity(0.75) : Colors.teal.withOpacity(0.75),
+                        child: Text(act.mountainName.substring(0,3).toUpperCase(),style: TextStyle(fontSize: 11, color: marked ? Colors.black : Colors.white),),
                       )
                      )
               );
