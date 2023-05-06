@@ -167,7 +167,7 @@ class Settings extends StatelessWidget {
     if (list.isNotEmpty) {
       var data = json.encode(list.map((e) => e.toMap()).toList());
       var now = DateTime.now();
-      var formatter = DateFormat('yyMMddhhmm');
+      var formatter = DateFormat('yyMMddHHmm');
       String formattedDate = formatter.format(now);
       var filePath =
           "/storage/emulated/0/Download/GipfelBuchDBexp_$formattedDate.json";
