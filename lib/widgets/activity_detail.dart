@@ -147,27 +147,27 @@ class _ActivityDetailState extends State<ActivityDetail> {
                   ListTile(
                     leading: const Icon(Icons.people),
                     title: const Text("Visitors"),
-                    subtitle: Text(activity.participants??"you'll never walk alone",style: dfStyle),
+                    subtitle: Text( (activity.participants==null || activity.participants!.isEmpty ) ? "you'll never walk alone :)" : activity.participants.toString() ,style: dfStyle),
                   ),
                   ListTile(
                     leading: const Icon(Icons.arrow_forward),
                     title: const Text("Distance"),
-                    subtitle: Text("${activity.distance} km",style: dfStyle,),
+                    subtitle: Text(activity.distance==null? "-" : "${activity.distance} km",style: dfStyle,),
                   ),
                   ListTile(
                     leading: const Icon(Icons.timer),
                     title: const Text("Duration"),
-                    subtitle: Text("${activity.duration} h", style: dfStyle,),
+                    subtitle: Text(activity.duration==null? "-" : "${activity.duration} h", style: dfStyle,),
                   ),
                   ListTile(
                     leading: const Icon(Icons.upgrade_outlined),
                     title: const Text("Vertical"),
-                    subtitle: Text("${activity.climb} hm", style: dfStyle,),
+                    subtitle: Text(activity.climb==null ? "-" : "${activity.climb} hm", style: dfStyle,),
                   ),
                   ListTile(
                     leading: const Icon(Icons.place_rounded),
                     title: const Text("Position"),
-                    subtitle: Text("lat:\t\t\t${activity.location?.latitude}\nlon:\t\t${activity.location?.longitude}",style: dfStyle,),
+                    subtitle: Text(activity.location==null? "-" : "lat:\t\t\t${activity.location?.latitude}\nlon:\t\t${activity.location?.longitude}",style: dfStyle,),
                     onTap: (){
                       if(activity.location!=null) {
                         postClipboard(

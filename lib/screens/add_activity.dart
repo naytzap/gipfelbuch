@@ -87,14 +87,18 @@ class _AddActivityFormState extends State<AddActivityForm> {
     _nameCtrl.text = act.mountainName;
     _visitorCtrl.text = act.participants ?? "";
     _dateCtrl.text = DateFormat('dd.MM.yyyy').format(act.date);
-    _distanceCtrl.text = act.distance.toString();
-    _durationCtrl.text = act.duration.toString();
-    _climbCtrl.text = act.climb.toString();
-    _locationCtrl.text =
-        "${act.location?.latitude}, ${act.location?.longitude}";
+    _distanceCtrl.text = (act.distance??"").toString();
+    _durationCtrl.text = (act.duration??"").toString();
+    _climbCtrl.text = (act.climb??"").toString();
+
     if (act.location?.latitude != null && act.location?.longitude != null) {
+      _locationCtrl.text =
+      "${act.location?.latitude}, ${act.location?.longitude}";
       _location = GeoPoint(latitude: act.location!.latitude, longitude: act.location!.longitude);
+    } else {
+      _locationCtrl.text = "";
     }
+
   }
   
   buildForm(int? actId){
@@ -146,7 +150,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     onTap: () async {
                       DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
+                          initialDate: _dateCtrl.text.isEmpty ? DateTime.now() : DateFormat("dd.MM.yyyy")
+                              .parse(_dateCtrl.text),
                           firstDate: DateTime(
                               1960), //DateTime.now() - not to allow to choose before today.
                           lastDate: DateTime.now(),
@@ -186,66 +191,78 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     ),
                     controller: _distanceCtrl,
                     keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if ((value?.isNotEmpty ?? false) &&
-                          !(double.tryParse(value!) == null)) {
-                        if (double.tryParse(value)! < 0) {
-                          return 'Insert positive value';
-                        }
-                        return null;
-                      } else if (value?.isNotEmpty ?? false) {
-                        return 'Please enter a positive number!';
-                      }
-                    },
+                    validator: (value) {return validatePositiveNumber(value);},
                   ),
                   SizedBox(height: vSpacing),
-                  TextField(
+                  TextFormField(
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Duration [h]',
                         icon: Icon(Icons.timer_outlined)),
                     controller: _durationCtrl,
                     keyboardType: TextInputType.number,
+                    validator: (value) {return validatePositiveNumber(value);},
                   ),
                   SizedBox(height: vSpacing),
-                  TextField(
+                  TextFormField(
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Vertical Meters [m]',
                         icon: Icon(Icons.height_outlined)),
                     controller: _climbCtrl,
                     keyboardType: TextInputType.number,
+                    validator: (value) {return validatePositiveNumber(value);},
                   ),
                   SizedBox(height: vSpacing),
-                  TextField(
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Position',
-                          icon: Icon(Icons.place_rounded)),
+                  TextFormField(
+                    //
+                      decoration:  InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: 'Position [12.345, 67.890]',
+                          icon: const Icon(Icons.place_rounded),
+                          suffixIcon: GestureDetector(
+                            child: Icon(Icons.my_location_outlined),
+                            onTap: () async {
+                              GeoPoint? p = await showSimplePickerLocation(
+                                context: context,
+                                isDismissible: false,
+                                title: "Select Summit Position",
+                                titleStyle: TextStyle(color: Colors.green, fontSize: 20),
+                                textConfirmPicker: "Select",
+                                textCancelPicker: "Cancel",
+                                initCurrentUserPosition: false,
+                                initPosition: (_locationCtrl.text == null || _locationCtrl.text.isEmpty ) ? GeoPoint(latitude: 47.886302 , longitude: 12.467000) : parseLocation(_locationCtrl.text),
+                                initZoom: (_locationCtrl.text == null || _locationCtrl.text.isEmpty ) ? 8 : 12,
+                              );
+                              if (p != null) {
+                                String formattedPoint =
+                                    "${p.latitude}, ${p.longitude}";
+                                debugPrint("Selected $formattedPoint");
+                                _location = p;
+                                setState(() {
+                                  _locationCtrl.text =
+                                      formattedPoint; //set output date to TextField value.
+                                });
+                              } else {
+                                debugPrint("Date is not selected");
+                              }
+                            },
+                          ),
+                        ),
                       controller: _locationCtrl,
-                      readOnly: true,
-                      onTap: () async {
-                        GeoPoint? p = await showSimplePickerLocation(
-                          context: context,
-                          isDismissible: true,
-                          title: "Select Summit Position",
-                          textConfirmPicker: "Select",
-                          initCurrentUserPosition: true,
-                          initZoom: 12,
-                        );
-                        if (p != null) {
-                          String formattedPoint =
-                              "${p.latitude}, ${p.longitude}";
-                          debugPrint("Selected $formattedPoint");
-                          _location = p;
-                          setState(() {
-                            _locationCtrl.text =
-                                formattedPoint; //set output date to TextField value.
-                          });
-                        } else {
-                          debugPrint("Date is not selected");
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        //thanks to: https://stackoverflow.com/a/18690202
+                        final locationPattern = RegExp(r'^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$');
+                        if ((value?.isNotEmpty ?? false)) {
+                          if(!locationPattern.hasMatch(_locationCtrl.text)) {
+                            return "Please enter format in format: [12.345, 67.890]";
+                          }
                         }
-                      }),
+                      },
+                      //readOnly: true,
+                      //onTap:
+                      ),
 
                   SizedBox(height: vSpacing),
                   Container(
@@ -263,7 +280,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                       _distanceCtrl.text),
                                   duration: double.tryParse(
                                       _durationCtrl.text),
-                                  location: _location,
+                                  location: (_locationCtrl.text == null || _locationCtrl.text.isEmpty )? null : parseLocation(_locationCtrl.text),//_location,
                                   participants: _visitorCtrl.text,
                                   date: DateFormat("dd.MM.yyyy")
                                       .parse(_dateCtrl.text));
@@ -330,5 +347,26 @@ class _AddActivityFormState extends State<AddActivityForm> {
             }
             ) : buildForm(null)
     );
-  } //build()
+  }
+
+  GeoPoint parseLocation(String text) {
+    var latlon = text.split(",");
+    double _lat = double.parse(latlon[0]);
+    double _lon = double.parse(latlon[1]);
+    return GeoPoint(latitude: _lat, longitude: _lon);
+  }
+
+  validatePositiveNumber(value) {
+      if ((value?.isNotEmpty ?? false) &&
+          !(double.tryParse(value!) == null)) {
+        if (double.tryParse(value)! < 0) {
+          return 'Insert positive value';
+        }
+        return null;
+      } else if (value?.isNotEmpty ?? false) {
+        return 'Please enter a positive number!';
+      }
+
+  }
+  //build()
 } //class
