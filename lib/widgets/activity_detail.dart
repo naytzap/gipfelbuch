@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:text_scroll/text_scroll.dart';
 
 import '../database_helper.dart';
 import '../models/mountain_activity.dart';
@@ -87,7 +88,15 @@ class _ActivityDetailState extends State<ActivityDetail> {
 
           return Scaffold(
               appBar: AppBar(
-                title: Text(activity.mountainName),
+                title: TextScroll(activity.mountainName,
+                  fadedBorder: true,
+                  fadedBorderWidth: 0.05,
+                  fadeBorderSide: FadeBorderSide.right,
+                  numberOfReps: 3,
+                  delayBefore: Duration(milliseconds: 1200),
+                  pauseBetween: Duration(milliseconds: 800),
+                  //velocity = const Velocity(pixelsPerSecond: Offset(80, 0)),
+                ),
                 actions: <Widget>[
                   InkWell(
                     child:const Icon(Icons.map),

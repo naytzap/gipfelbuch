@@ -67,10 +67,14 @@ class _ActivityListState extends State<ActivityList> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
+                                            Text(snapshot.data!
+                                          .elementAt(index)
+                                          .mountainName.length < 18 ?
                                                 snapshot.data!
                                                     .elementAt(index)
-                                                    .mountainName,
+                                                    .mountainName : snapshot.data!
+                                                .elementAt(index)
+                                                .mountainName.substring(0,18)+"...",
                                                 style: const TextStyle(
                                                     fontSize: 20)),
                                             Text(DateFormat('dd.MM.yyyy')
