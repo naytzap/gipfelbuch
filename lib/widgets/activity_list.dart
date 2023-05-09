@@ -44,6 +44,7 @@ class _ActivityListState extends State<ActivityList> {
                 ));
               }
               return ListView.separated(
+                  cacheExtent: 4000,
                   separatorBuilder: (BuildContext context, int index) =>
                       Container(height: 5),
                   itemCount: snapshot.data!.length,
