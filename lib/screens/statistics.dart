@@ -52,7 +52,7 @@ class Statistics extends StatelessWidget {
                 myChildren.add( Card(
                       child: ListTile(
                         leading: Icon(Icons.numbers_rounded),
-                        title: Text("Number of activities"),
+                        title: Text("Number Of Activities"),
                         subtitle: Text("$totalActivities"),
                       )
                   ));
@@ -76,7 +76,7 @@ class Statistics extends StatelessWidget {
                       child: ListTile(
                         onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context) => ActivityDetail(highestAct.id!))); },
                         leading: const Icon(Icons.arrow_upward_rounded),
-                        title: const Text("Highest ascend"),
+                        title: const Text("Highest Ascend"),
                         subtitle: Text("${highestAct.climb} m (${highestAct.mountainName})"),
                       )
                   ));
