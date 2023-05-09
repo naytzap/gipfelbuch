@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../database_helper.dart';
 import '../models/mountain_activity.dart';
@@ -22,6 +25,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
   final _formKey = GlobalKey<FormState>();
   late bool _editMode = false;
   bool edited = false;
+  File? gpxFile = null;
   GeoPoint? _location;
   late final TextEditingController _nameCtrl = TextEditingController();
   late final TextEditingController _visitorCtrl = TextEditingController();
@@ -265,46 +269,66 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       ),
 
                   SizedBox(height: vSpacing),
-                  Container(
-                      color: Colors.lightGreen,
-                      child: TextButton(
-                          onPressed: () {
-                            debugPrint("Add act pressed");
-                            if (_formKey.currentState!.validate()) {
-                              var activity = MountainActivity(
-                                  id: _editMode ? actId! : null,
-                                  mountainName: _nameCtrl.text,
-                                  climb:
-                                  int.tryParse(_climbCtrl.text),
-                                  distance: double.tryParse(
-                                      _distanceCtrl.text),
-                                  duration: double.tryParse(
-                                      _durationCtrl.text),
-                                  location: (_locationCtrl.text == null || _locationCtrl.text.isEmpty )? null : parseLocation(_locationCtrl.text),//_location,
-                                  participants: _visitorCtrl.text,
-                                  date: DateFormat("dd.MM.yyyy")
-                                      .parse(_dateCtrl.text));
-                              debugPrint(activity.toMap().toString());
-                              if (_editMode) {
-                                DatabaseHelper.instance
-                                    .update(activity);
-                              } else {
-                                DatabaseHelper.instance
-                                    .addActivity(activity);
-                              }
-                              Navigator.pop(context);
-                            } else {
-                              debugPrint("Form not valid!");
-                            }
-                          },
-                          child: Text(
-                            _editMode
-                                ? "Edit Activity"
-                                : "Add Activity",
-                            style: const TextStyle(
-                                backgroundColor: Colors.lightGreen,
-                                color: Colors.white),
-                          )))
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.lightGreen),
+                        ),
+                        child: TextButton(onPressed: (){addGPX(context);},child: Text("Add GPX")),
+                      ),
+                      SizedBox(width: 50,),
+                      //Expanded(child: Container()),
+                      Container(
+                          color: Colors.lightGreen,
+                          child: TextButton(
+                              onPressed: () async {
+                                debugPrint("Add act pressed");
+                                if (_formKey.currentState!.validate()) {
+                                  var activity = MountainActivity(
+                                      id: _editMode ? actId! : null,
+                                      mountainName: _nameCtrl.text,
+                                      climb:
+                                      int.tryParse(_climbCtrl.text),
+                                      distance: double.tryParse(
+                                          _distanceCtrl.text),
+                                      duration: double.tryParse(
+                                          _durationCtrl.text),
+                                      location: (_locationCtrl.text == null || _locationCtrl.text.isEmpty )? null : parseLocation(_locationCtrl.text),//_location,
+                                      participants: _visitorCtrl.text,
+                                      date: DateFormat("dd.MM.yyyy")
+                                          .parse(_dateCtrl.text));
+                                  debugPrint(activity.toMap().toString());
+                                  int? id = null;
+                                  if (_editMode) {
+                                    id = await DatabaseHelper.instance
+                                        .update(activity);
+                                  } else {
+                                    id = await DatabaseHelper.instance
+                                        .addActivity(activity);
+                                  }
+                                  if (gpxFile!=null && id!=null) {
+                                    final directory = await getApplicationDocumentsDirectory();
+                                    gpxFile!.copy("${directory.path}/track_${id}.gpx");
+                                  }
+                                  Navigator.pop(context);
+                                } else {
+                                  debugPrint("Form not valid!");
+                                }
+                              },
+                              child: Text(
+                                _editMode
+                                    ? "Edit Activity"
+                                    : "Add Activity",
+                                style: const TextStyle(
+                                    backgroundColor: Colors.lightGreen,
+                                    color: Colors.white),
+                              ))),
+
+                    ],
+                  )
+
                 ],
               ),
             )));
@@ -367,6 +391,22 @@ class _AddActivityFormState extends State<AddActivityForm> {
         return 'Please enter a positive number!';
       }
 
+  }
+
+  Future<void> addGPX(BuildContext context) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      //type: FileType.custom,
+      //allowedExtensions: ['gpx'],
+    );
+
+    if (result != null) {
+      gpxFile = File(result.files.single.path ?? "");
+      debugPrint("Picked GPX ${gpxFile!.path}");
+      //TODO: Test for gpx extension if not possible to filter to GPX
+    } else {
+      //user cancelled file picker dialogue
+    }
   }
   //build()
 } //class
