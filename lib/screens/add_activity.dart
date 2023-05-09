@@ -302,7 +302,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                   debugPrint(activity.toMap().toString());
                                   int? id = null;
                                   if (_editMode) {
-                                    id = await DatabaseHelper.instance
+                                    id = actId;
+                                     await DatabaseHelper.instance
                                         .update(activity);
                                   } else {
                                     id = await DatabaseHelper.instance
@@ -310,6 +311,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                   }
                                   if (gpxFile!=null && id!=null) {
                                     final directory = await getApplicationDocumentsDirectory();
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Saved gpx id: $id (actId: $actId")));
                                     gpxFile!.copy("${directory.path}/track_${id}.gpx");
                                   }
                                   Navigator.pop(context);

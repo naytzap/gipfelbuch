@@ -68,34 +68,6 @@ class _FMapState extends State<FMap> {
                     urlTemplate:
                     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
-                  //MarkerLayer(markers: allMarkers),
-                  FutureBuilder<List<MountainActivity>>(
-                      future: DatabaseHelper.instance.getAllActivities(),
-                      builder:  (BuildContext context, AsyncSnapshot<List<MountainActivity>> snapshot) {
-                          List<Marker> myMarkers = [];
-                          if (!snapshot.hasData) {
-                            return const MarkerLayer(markers: []);
-                          }
-                          if (snapshot.data!.isEmpty) {
-                            return const MarkerLayer(markers: []);
-                          } else {
-                            var nAct = snapshot.data!.length;
-                            if(nAct > 0) {
-                              for(var i=0; i<nAct; i++) {
-                                MountainActivity act = snapshot.data!.elementAt(i);
-                                if(act.location != null ) {
-                                  myMarkers.add(createMountainMarker(act,context));
-                                }
-                              }
-                            }
-                            return MarkerLayer(markers: myMarkers);
-                          }
-                      },),
-                  /*PolylineLayer(polylines: [Polyline(
-                      color: Colors.red,
-                      strokeWidth: 5,
-                      strokeJoin: StrokeJoin.bevel,
-                      points: [LatLng(49,12),LatLng(48, 10),LatLng(47, 11)])],),*/
                   FutureBuilder<List<Polyline>>(
                     future: getPolylines(),
                     builder:  (BuildContext context, AsyncSnapshot<List<Polyline>> snapshot) {
@@ -107,6 +79,28 @@ class _FMapState extends State<FMap> {
                         //return PolylineLayer(polylines: [Polyline(color: Colors.red.withOpacity(0.8),strokeWidth: 5,points: snapshot!.data!)],);
                       }
                     }),
+                  FutureBuilder<List<MountainActivity>>(
+                    future: DatabaseHelper.instance.getAllActivities(),
+                    builder:  (BuildContext context, AsyncSnapshot<List<MountainActivity>> snapshot) {
+                      List<Marker> myMarkers = [];
+                      if (!snapshot.hasData) {
+                        return const MarkerLayer(markers: []);
+                      }
+                      if (snapshot.data!.isEmpty) {
+                        return const MarkerLayer(markers: []);
+                      } else {
+                        var nAct = snapshot.data!.length;
+                        if(nAct > 0) {
+                          for(var i=0; i<nAct; i++) {
+                            MountainActivity act = snapshot.data!.elementAt(i);
+                            if(act.location != null ) {
+                              myMarkers.add(createMountainMarker(act,context));
+                            }
+                          }
+                        }
+                        return MarkerLayer(markers: myMarkers);
+                      }
+                    },),
                 ],
               ),
             ),
@@ -116,15 +110,13 @@ class _FMapState extends State<FMap> {
   Future<List<Polyline>> getPolylines() async {
     var activities = await DatabaseHelper.instance.getAllActivities();
     final directory = await getApplicationDocumentsDirectory();
-    //file.copy("${directory.path}/track_test.gpx");
 
     List<Polyline> polyList = [];
     for (MountainActivity act in activities) {
       File gpxFile = File("${directory.path}/track_${act.id}.gpx");
-      //debugPrint("getPolylines()");
       List<LatLng> points = [];
       if (gpxFile.existsSync()) {
-        debugPrint("File Exists");
+        debugPrint("GPX File Exists (id: ${act.id})");
         var xmlGpx = GpxReader().fromString(gpxFile.readAsStringSync());
         var trackPoints = xmlGpx.trks[0].trksegs[0].trkpts;
         for (Wpt wpt in trackPoints) {
