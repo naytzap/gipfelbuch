@@ -65,6 +65,43 @@ class _ActivityDetailState extends State<ActivityDetail> {
     );
   }
 
+  showDeleteGPXDialog(BuildContext context) {
+    // set up the buttons
+    Widget deleteButton = TextButton(
+      child: const Text("Delete GPX", style: TextStyle(color: Colors.red)),
+      onPressed:  () async {
+        final directory = await getApplicationDocumentsDirectory();
+        File gpxFile = File("${directory.path}/track_${widget.activityId}.gpx");
+        if(gpxFile.existsSync()) {
+          gpxFile.delete();
+        }
+        Navigator.of(context).pop();
+      },
+    );
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed:  () {Navigator.of(context).pop();},
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Delete GPX"),
+      content: const Text("Are you sure? This can't be undone!"),
+      actions: [
+        deleteButton,
+        cancelButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -126,13 +163,16 @@ class _ActivityDetailState extends State<ActivityDetail> {
                           debugPrint("Pressed Edit");
                           editActivity(context);
                           break;
-                        case 'Delete':
+                        case 'Delete GPX':
+                          showDeleteGPXDialog(context);
+                          break;
+                        case 'Delete Activity':
                           showDeleteDialog(context);
                           break;
                       }
                     },
                     itemBuilder: (BuildContext context) {
-                      return {'Edit', 'Delete'}.map((String choice) {
+                      return {'Edit', 'Delete GPX', 'Delete Activity'}.map((String choice) {
                         return PopupMenuItem<String>(
                           value: choice,
                           child: Text(choice),
@@ -171,13 +211,13 @@ class _ActivityDetailState extends State<ActivityDetail> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.upgrade_outlined),
-                    title: const Text("Vertical"),
-                    subtitle: Text(activity.climb==null ? "-" : "${activity.climb} hm", style: dfStyle,),
+                    title: const Text("Elevation Gain"),
+                    subtitle: Text(activity.climb==null ? "-" : "${activity.climb} m", style: dfStyle,),
                   ),
                   ListTile(
                     leading: const Icon(Icons.place_rounded),
                     title: const Text("Position"),
-                    subtitle: Text(activity.location==null? "-" : "lat:\t\t\t${activity.location?.latitude}\nlon:\t\t${activity.location?.longitude}",style: dfStyle,),
+                    subtitle: Text(activity.location==null? "-" : "Coordinates:\t${activity.location?.latitude.toStringAsFixed(3)}, ${activity.location?.longitude.toStringAsFixed(3)}",style: dfStyle,),
                     onTap: (){
                       if(activity.location!=null) {
                         postClipboard(
