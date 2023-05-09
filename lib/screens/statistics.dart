@@ -1,7 +1,10 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:testapp/database_helper.dart';
 import 'package:testapp/models/mountain_activity.dart';
+import 'package:text_scroll/text_scroll.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/activity_detail.dart';
@@ -32,7 +35,7 @@ class Statistics extends StatelessWidget {
                     style: TextStyle(fontStyle: FontStyle.italic, height: 1.4, fontSize: 18))));
               }
               else {
-                var totalActivities = snapshot.data!.length;
+                var numberActivities = snapshot.data!.length;
                 var furthestAct = snapshot.data!.reduce((current, next) => (current.distance??0) > (next.distance??0) ? current : next);
                 var longestAct = snapshot.data!.reduce((current, next) => (current.duration??0) > (next.duration??0) ? current : next);
                 var highestAct = snapshot.data!.reduce((current, next) => (current.climb??0) > (next.climb??0) ? current : next);
@@ -49,11 +52,18 @@ class Statistics extends StatelessWidget {
                 double totalTime = snapshot.data!.fold(0,(double sum,elem) => sum + (elem.duration??0.0));
                 double totalClimb = snapshot.data!.fold(0,(double sum,elem) => sum + (elem.climb??0.0));
 
+                //
+                String companions = snapshot.data!.fold("",(c,elem)=> "$c${elem.participants??" "},");
+                var countComp = occurence(companions);
+                //var maxCount = countComp.values
+                print(countComp.toString());
+
+
                 myChildren.add( Card(
                       child: ListTile(
                         leading: Icon(Icons.numbers_rounded),
                         title: Text("Number Of Activities"),
-                        subtitle: Text("$totalActivities"),
+                        subtitle: Text("$numberActivities"),
                       )
                   ));
                 myChildren.add( Card(
@@ -87,6 +97,28 @@ class Statistics extends StatelessWidget {
                         subtitle: Text("You walked ${numFormatter.format(totalDistance.ceil())} km in ${numFormatter.format(totalTime.ceil())} hours and climbed ${numFormatter.format(totalClimb.ceil())} meters of altitude between $earliestDate and $latestDate"),
                       )
                   ));
+                myChildren.add(Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.people_alt_rounded),
+                      title: const Text("Frequent Companions"),
+                      subtitle: Column(
+                        children: [/*
+                          Row(
+                            children: [Text("🥇"),Text("5x\t"),TextScroll("Sepp")],
+                          ),
+                          SizedBox(height: 3,),
+                          Row(
+                            children: [Text("🥈"),Text("3x\t"),TextScroll("Sepp")],
+                          ),
+                          SizedBox(height: 3,),
+                          Row(
+                            children: [Text("🥉"),Text("2x\t"),TextScroll("Sepp")],
+                          )
+                        */
+                        TextScroll(countComp.toString())],
+                      )
+                    )
+                ));
                 myChildren.add(const Expanded(
                     child: Center(
                       child: Text("Keep on walking!",
@@ -109,4 +141,20 @@ class Statistics extends StatelessWidget {
       ),
     );
   }
+
+  Map<String, int> occurence(String text) {
+    List<String?> words = text.split(",").map((word) => word.isNotEmpty?word.trim():null ).toList();
+    //var newWords =  words.map((l) => l.l.where((i) => i.isNotEmpty).toList()).toList();
+    print(words); // [hello, hi, hello, one, two, two, three]
+
+    Map<String, int> count = {};
+    for (var word in words) {
+      if (word!=null) {
+        count.update(word, (value) => value + 1, ifAbsent: () => 1);
+      }
+    }
+
+    return count;
+  }
+
 }
