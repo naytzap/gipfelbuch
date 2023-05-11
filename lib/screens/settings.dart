@@ -10,8 +10,61 @@ import 'package:testapp/models/activities.dart';
 import 'package:testapp/models/mountain_activity.dart';
 import 'package:collection/collection.dart'; //firstwhereornull
 
-class Settings extends StatelessWidget {
+class Settings extends StatefulWidget {
   const Settings({super.key});
+
+  @override
+  State<Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
+
+  Column devFunctions() {
+    return Column(children: [
+    const SizedBox(height: 20),
+    InkWell(
+    onTap: () {
+    clearCachedImgs(context);
+    },
+    child: Container(
+    alignment: Alignment.center,
+    color: Colors.red,
+    height: 50,
+    child: const Text(
+    "Delete cached images",
+    style: TextStyle(fontSize: 20),
+    ),
+    )),
+    const SizedBox(height: 20),
+    InkWell(
+    onTap: () {
+    clearThumbs(context);
+    },
+    child: Container(
+    alignment: Alignment.center,
+    color: Colors.orange,
+    height: 50,
+    child: const Text(
+    "Delete cached thumbnails",
+    style: TextStyle(fontSize: 20),
+    ),
+    )),
+    const SizedBox(height: 20),
+    InkWell(
+    onTap: () {
+    clearDb(context);
+    },
+    child: Container(
+    alignment: Alignment.center,
+    color: Colors.red,
+    height: 50,
+    child: const Text(
+    "Delete database",
+    style: TextStyle(fontSize: 20),
+    ),
+    )),
+    const SizedBox(height: 20),]);
+  }
 
   Future<void> loadDemoDb(BuildContext context) async {
     var list = await DatabaseHelper.instance.getAllActivities();
@@ -200,9 +253,13 @@ class Settings extends StatelessWidget {
     Navigator.pop(context, false);
   }
 
+  bool enableDevFuncs = false;
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -255,49 +312,16 @@ class Settings extends StatelessWidget {
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
-                    const SizedBox(height: 60),
-                    InkWell(
-                        onTap: () {
-                          clearCachedImgs(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.red,
-                          height: 50,
-                          child: const Text(
-                            "Delete cached images",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                    const SizedBox(height: 60),
-                    InkWell(
-                        onTap: () {
-                          clearThumbs(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.orange,
-                          height: 50,
-                          child: const Text(
-                            "Delete cached thumbnails",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                    const SizedBox(height: 20),
-                    InkWell(
-                        onTap: () {
-                          clearDb(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.red,
-                          height: 50,
-                          child: const Text(
-                            "Delete database",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                    const SizedBox(height: 20),
+                Row(children:[
+                  Text("Enable developer options "),
+                Switch(
+                  value: enableDevFuncs,
+                  onChanged: (bool value) {
+                    setState(() {
+                      enableDevFuncs = value;
+                    });
+                  },)]),
+                    enableDevFuncs?devFunctions():Container(),
                   ],
                 ))));
   }

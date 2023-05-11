@@ -16,7 +16,7 @@ import '../models/mountain_activity.dart';
 import '../screens/fmap.dart';
 import 'qrwidget.dart';
 
-class ActivityDetail extends StatefulWidget{
+class ActivityDetail extends StatefulWidget {
   final int activityId;
   const ActivityDetail(this.activityId, {super.key});
 
@@ -25,25 +25,26 @@ class ActivityDetail extends StatefulWidget{
 }
 
 class _ActivityDetailState extends State<ActivityDetail> {
-
   //File? image;
 
   showDeleteDialog(BuildContext context) {
     // set up the buttons
     Widget deleteButton = TextButton(
       child: const Text("Delete", style: TextStyle(color: Colors.red)),
-      onPressed:  () {
+      onPressed: () {
         // TODO: remove image as well, if there is any
         DatabaseHelper.instance.delete(widget.activityId);
         var count = 0;
         Navigator.popUntil(context, (route) {
           return count++ == 2;
         });
-        },
+      },
     );
     Widget cancelButton = TextButton(
       child: const Text("Cancel"),
-      onPressed:  () {Navigator.of(context).pop();},
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
 
     // set up the AlertDialog
@@ -69,10 +70,10 @@ class _ActivityDetailState extends State<ActivityDetail> {
     // set up the buttons
     Widget deleteButton = TextButton(
       child: const Text("Delete GPX", style: TextStyle(color: Colors.red)),
-      onPressed:  () async {
+      onPressed: () async {
         final directory = await getApplicationDocumentsDirectory();
         File gpxFile = File("${directory.path}/track_${widget.activityId}.gpx");
-        if(gpxFile.existsSync()) {
+        if (gpxFile.existsSync()) {
           gpxFile.delete();
         }
         Navigator.of(context).pop();
@@ -80,7 +81,9 @@ class _ActivityDetailState extends State<ActivityDetail> {
     );
     Widget cancelButton = TextButton(
       child: const Text("Cancel"),
-      onPressed:  () {Navigator.of(context).pop();},
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
 
     // set up the AlertDialog
@@ -104,12 +107,14 @@ class _ActivityDetailState extends State<ActivityDetail> {
 
   @override
   Widget build(BuildContext context) {
-
     return FutureBuilder(
-      future: Future.wait([DatabaseHelper.instance.getActivity(widget.activityId), loadImage(widget.activityId)]),
-        builder: (context, snapshot){
+        future: Future.wait([
+          DatabaseHelper.instance.getActivity(widget.activityId),
+          loadImage(widget.activityId)
+        ]),
+        builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const CircularProgressIndicator();//Center(child: Text("Loading..."));
+            return const CircularProgressIndicator(); //Center(child: Text("Loading..."));
           }
           /*
           if (snapshot.data![0]?.id != widget.activityId) {
@@ -126,7 +131,8 @@ class _ActivityDetailState extends State<ActivityDetail> {
 
           return Scaffold(
               appBar: AppBar(
-                title: TextScroll(activity.mountainName,
+                title: TextScroll(
+                  activity.mountainName,
                   fadedBorder: true,
                   fadedBorderWidth: 0.05,
                   fadeBorderSide: FadeBorderSide.right,
@@ -137,28 +143,36 @@ class _ActivityDetailState extends State<ActivityDetail> {
                 ),
                 actions: <Widget>[
                   InkWell(
-                    child:const Icon(Icons.map),
-                    onTap: () {
-
-                      if(activity.location != null) {
-                        var llPos = LatLng(activity.location!.latitude, activity.location!.longitude);
-                        debugPrint("Show map on $llPos");
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => FMap(initPos: llPos, key: UniqueKey())));
-                      }
-                    }),
-                  Container(width: 20,),
+                      child: const Icon(Icons.map),
+                      onTap: () {
+                        if (activity.location != null) {
+                          var llPos = LatLng(activity.location!.latitude,
+                              activity.location!.longitude);
+                          debugPrint("Show map on $llPos");
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      FMap(initPos: llPos, key: UniqueKey())));
+                        }
+                      }),
+                  Container(
+                    width: 20,
+                  ),
                   InkWell(
-                    child:const Icon(Icons.qr_code),
+                    child: const Icon(Icons.qr_code),
                     onTap: () {
                       var data = json.encode(activity.toMap());
                       debugPrint(data);
-                      Navigator.push(context,MaterialPageRoute(builder: (context) => QrWidget(data)));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => QrWidget(data)));
                     },
                   ),
                   PopupMenuButton<String>(
                     onSelected: (value) {
-                      switch(value){
+                      switch (value) {
                         case 'Edit':
                           debugPrint("Pressed Edit");
                           editActivity(context);
@@ -172,7 +186,8 @@ class _ActivityDetailState extends State<ActivityDetail> {
                       }
                     },
                     itemBuilder: (BuildContext context) {
-                      return {'Edit', 'Delete GPX', 'Delete Activity'}.map((String choice) {
+                      return {'Edit', 'Delete GPX', 'Delete Activity'}
+                          .map((String choice) {
                         return PopupMenuItem<String>(
                           value: choice,
                           child: Text(choice),
@@ -185,52 +200,78 @@ class _ActivityDetailState extends State<ActivityDetail> {
               body: ListView(
                 children: [
                   InkWell(
-                      onTap: ()async{await openImageModal(context);},//pickImage,
-                      child: image!=null ?Image.file(image) : const Image(image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))
-                  ),
+                      onTap: () async {
+                        await openImageModal(context);
+                      }, //pickImage,
+                      child: image != null ? Image.file(image) : defaultImage()
+                      //const Image(image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))
+                      ),
                   Container(height: 5),
                   ListTile(
                     leading: const Icon(Icons.date_range),
                     title: const Text("Date of visit"),
-                    subtitle: Text(DateFormat('dd.MM.yyyy').format(activity.date),style: dfStyle),
+                    subtitle: Text(
+                        DateFormat('dd.MM.yyyy').format(activity.date),
+                        style: dfStyle),
                   ),
                   ListTile(
                     leading: const Icon(Icons.people),
                     title: const Text("Visitors"),
-                    subtitle: Text( (activity.participants==null || activity.participants!.isEmpty ) ? "you'll never walk alone :)" : activity.participants.toString() ,style: dfStyle),
+                    subtitle: Text(
+                        (activity.participants == null ||
+                                activity.participants!.isEmpty)
+                            ? "you'll never walk alone :)"
+                            : activity.participants.toString(),
+                        style: dfStyle),
                   ),
                   ListTile(
                     leading: const Icon(Icons.arrow_forward),
                     title: const Text("Distance"),
-                    subtitle: Text(activity.distance==null? "-" : "${activity.distance} km",style: dfStyle,),
+                    subtitle: Text(
+                      activity.distance == null
+                          ? "-"
+                          : "${activity.distance} km",
+                      style: dfStyle,
+                    ),
                   ),
                   ListTile(
                     leading: const Icon(Icons.timer),
                     title: const Text("Duration"),
-                    subtitle: Text(activity.duration==null? "-" : "${activity.duration} h", style: dfStyle,),
+                    subtitle: Text(
+                      activity.duration == null
+                          ? "-"
+                          : "${activity.duration} h",
+                      style: dfStyle,
+                    ),
                   ),
                   ListTile(
                     leading: const Icon(Icons.upgrade_outlined),
                     title: const Text("Elevation Gain"),
-                    subtitle: Text(activity.climb==null ? "-" : "${activity.climb} m", style: dfStyle,),
+                    subtitle: Text(
+                      activity.climb == null ? "-" : "${activity.climb} m",
+                      style: dfStyle,
+                    ),
                   ),
                   ListTile(
                     leading: const Icon(Icons.place_rounded),
                     title: const Text("Position"),
-                    subtitle: Text(activity.location==null? "-" : "Coordinates:\t${activity.location?.latitude.toStringAsFixed(3)}, ${activity.location?.longitude.toStringAsFixed(3)}",style: dfStyle,),
-                    onTap: (){
-                      if(activity.location!=null) {
+                    subtitle: Text(
+                      activity.location == null
+                          ? "-"
+                          : "Coordinates:\t${activity.location?.latitude.toStringAsFixed(3)}, ${activity.location?.longitude.toStringAsFixed(3)}",
+                      style: dfStyle,
+                    ),
+                    onTap: () {
+                      if (activity.location != null) {
                         postClipboard(
-                            "${activity.location?.latitude}, ${activity.location
-                                ?.longitude}", context);
-                      }},
+                            "${activity.location?.latitude}, ${activity.location?.longitude}",
+                            context);
+                      }
+                    },
                   )
                 ],
-              )
-          );
+              ));
         });
-
-
   }
 
   void handleClick(value) {
@@ -246,63 +287,84 @@ class _ActivityDetailState extends State<ActivityDetail> {
 
   editActivity(BuildContext context) async {
     debugPrint("editing: ${widget.activityId}");
-    await Navigator.pushNamed(context, "/add",arguments: widget.activityId).then((_) => setState((){}));
+    await Navigator.pushNamed(context, "/add", arguments: widget.activityId)
+        .then((_) => setState(() {}));
   }
 
-  Future pickImage() async{
+  Future pickImage() async {
     try {
       debugPrint("pick image");
       XFile? img = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (img == null) return;
       debugPrint("Chose: ${img.path}");
-      final imgSaved = await saveImage(img.path,widget.activityId);
-      setState((){debugPrint("(setState) chose image");});
-    } on PlatformException catch(e) {
+      final imgSaved = await saveImage(img.path, widget.activityId);
+      setState(() {
+        debugPrint("(setState) chose image");
+      });
+    } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
   }
 
-
   openImageModal(context) async {
-     showModalBottomSheet(
+    showModalBottomSheet(
         context: context,
         builder: (context) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.image),
-              title: const Text('Chose image from gallery'),
-              //onTap: () => Navigator.of(context).pop(ImageSource.gallery),
-              onTap: ()async {await pickImage().then(Navigator.of(context).pop);},
-            )
-          ],
-        )
-     );
-
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.image),
+                  title: const Text('Chose image from gallery'),
+                  //onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+                  onTap: () async {
+                    await pickImage().then(Navigator.of(context).pop);
+                  },
+                )
+              ],
+            ));
   }
 
-  Future<File> saveImage(String oldImagePath, int activityId) async{
+  Future<File> saveImage(String oldImagePath, int activityId) async {
     final directory = await getApplicationDocumentsDirectory();
     //final fileExtension = extension(oldImagePath);
-    final name = basename('activity_$activityId');//.$fileExtension');
+    final name = basename('activity_$activityId'); //.$fileExtension');
     final newImage = File('${directory.path}/$name');
     //we also need to create/update the thumbnail!
-    var newThumb =  await FlutterNativeImage.compressImage(oldImagePath,quality: 30);
+    var newThumb =
+        await FlutterNativeImage.compressImage(oldImagePath, quality: 30);
     //ImageProperties props = await FlutterNativeImage.getImageProperties(image.path);
     debugPrint("created a new thumb for $activityId");
     newThumb.copy("${newImage.path}_thumbnail");
     return File(oldImagePath).copy(newImage.path);
   }
 
-  Future<File?> loadImage(int activityId) async{
+  Future<File?> loadImage(int activityId) async {
     final directory = await getApplicationDocumentsDirectory();
     File image = File('${directory.path}/activity_$activityId');
     return await image.exists() ? image : null;
   }
 
   postClipboard(String txt, context) {
-    Clipboard.setData(ClipboardData(text: txt)).then((_){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Position copied to clipboard")));
+    Clipboard.setData(ClipboardData(text: txt)).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Position copied to clipboard")));
     });
+  }
+
+  defaultImage() {
+    return Stack(alignment: Alignment.center, children: [
+      Image(image: AssetImage('assets/Langkofel_bw.jpg')),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),//EdgeInsets.all(10),
+        decoration: BoxDecoration(color: Colors.black.withOpacity(0.3), borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: const Text(
+        "tap here to add image",
+        style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.white54,
+        ),
+      ))
+    ]);
   }
 }

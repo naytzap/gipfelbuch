@@ -4,12 +4,12 @@ import './mountain_activity.dart';
 
 class Activities {
   static final List<MountainActivity> _db = [
-    MountainActivity(mountainName: "Säuling",participants:  "Stefan, Jonas",date: DateTime(2021,9,30),distance:  19.65,duration: 6.25,climb:  2047,location: GeoPoint(latitude: 47.534722,longitude: 10.755)),
-    MountainActivity(mountainName: "Schellschlicht",participants:  "Stefan, Franzi, Jonas",date:  DateTime(2020,9,30),distance:  13.8,duration: 6,climb:  2049,location: GeoPoint(latitude: 47.509722,longitude: 10.916667)),
-    MountainActivity(mountainName: "Schneibstein",participants:  "Stefan, Franzi,  Jonas",date:  DateTime(2020,6,1),distance:  19.78,duration: 6.2,climb:  2276,location: GeoPoint(latitude: 47.562222,longitude: 13.057222)),
-    MountainActivity(mountainName: "Kammerlinghorn",participants:  "Stefan, Franzi, Jonas",date:  DateTime(2019,9,30),distance:  9,duration: 6.5,climb:  999,location: GeoPoint(latitude: 47.5450497, longitude: 12.8327097)),
-    MountainActivity(mountainName: "Arber",participants:  "Jonas, Franzi", date: DateTime(2018,8,8),distance:  11,duration: 5.5,climb:  999,location: GeoPoint(latitude: 49.1124718, longitude: 13.13619)),
-    MountainActivity(mountainName: "Lusen",participants:  "Jonas",date:  DateTime(2020,7,15),distance:  11,duration: 5.5,climb:  999,location: GeoPoint(latitude: 48.9391964, longitude: 13.5067775))
+    MountainActivity(mountainName: "Mont Blanc",    participants:  "Sepp, Lisa, Paul",  date: DateTime(2021,9,30),distance: 35,duration: 18,climb: 4808,location: GeoPoint(latitude: 45.8327057,longitude: 6.8651706)),
+    MountainActivity(mountainName: "Dufourspitze",  participants:  "Martin, Clara",     date: DateTime(2020,9,30),distance: 33,duration: 17,climb: 4634,location: GeoPoint(latitude: 45.9369096,longitude: 7.866751)),
+    MountainActivity(mountainName: "Zumsteinspitze",participants:  "Anna, Sepp, Paul",  date: DateTime(2020,6, 1),distance: 31,duration: 16,climb: 4563,location: GeoPoint(latitude: 45.9321656,longitude: 7.8714077)),
+    MountainActivity(mountainName: "Dom",           participants:  "Thorsten, Sepp",    date: DateTime(2019,9,30),distance: 29,duration: 15,climb: 4545,location: GeoPoint(latitude: 46.0939293,longitude: 7.8588713)),
+    MountainActivity(mountainName: "Liskamm",       participants:  "Paul, Anna",        date: DateTime(2018,8, 8),distance: 27,duration: 14,climb: 4527,location: GeoPoint(latitude: 45.9232742,longitude: 7.8336489)),
+    MountainActivity(mountainName: "Weisshorn",     participants:  "Lisa, Anna",        date: DateTime(2020,7,15),distance: 25,duration: 13,climb: 4505,location: GeoPoint(latitude: 46.101233, longitude: 7.7161432))
   ];
 
   static List<MountainActivity> fetchAll() {

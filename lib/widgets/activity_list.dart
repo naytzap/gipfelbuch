@@ -106,7 +106,7 @@ class _ActivityListState extends State<ActivityList> {
                                                       return const Image(
                                                           height: _height,
                                                           image: AssetImage(
-                                                              'assets/11_Langkofel_group_Dolomites_Italy.jpg'));
+                                                              'assets/Langkofel_bw.jpg'));
                                                     } else {
                                                       //return SizedBox(height: _height, width: 154, child:  Image.file(snapshot2.data!,fit: BoxFit.fitHeight, alignment : Alignment.center, ));
                                                       return  Container(constraints: const BoxConstraints(maxWidth: 154), child: Image.file(snapshot2.data!,fit: BoxFit.fitHeight, alignment : Alignment.center, height: _height, ));

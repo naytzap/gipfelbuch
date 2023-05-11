@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../database_helper.dart';
@@ -82,7 +83,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
       _durationCtrl.text = act["duration"].toString();
       _climbCtrl.text = act["climb"].toString();
       _locationCtrl.text = "${act["latitude"]}, ${act["longitude"]}";
-      _location = GeoPoint(latitude: act["latitude"], longitude: act["longitude"]);
+      _location =
+          GeoPoint(latitude: act["latitude"], longitude: act["longitude"]);
       //location
     });
   }
@@ -91,25 +93,25 @@ class _AddActivityFormState extends State<AddActivityForm> {
     _nameCtrl.text = act.mountainName;
     _visitorCtrl.text = act.participants ?? "";
     _dateCtrl.text = DateFormat('dd.MM.yyyy').format(act.date);
-    _distanceCtrl.text = (act.distance??"").toString();
-    _durationCtrl.text = (act.duration??"").toString();
-    _climbCtrl.text = (act.climb??"").toString();
+    _distanceCtrl.text = (act.distance ?? "").toString();
+    _durationCtrl.text = (act.duration ?? "").toString();
+    _climbCtrl.text = (act.climb ?? "").toString();
 
     if (act.location?.latitude != null && act.location?.longitude != null) {
       _locationCtrl.text =
-      "${act.location?.latitude}, ${act.location?.longitude}";
-      _location = GeoPoint(latitude: act.location!.latitude, longitude: act.location!.longitude);
+          "${act.location?.latitude}, ${act.location?.longitude}";
+      _location = GeoPoint(
+          latitude: act.location!.latitude, longitude: act.location!.longitude);
     } else {
       _locationCtrl.text = "";
     }
-
   }
-  
-  buildForm(int? actId){
+
+  buildForm(int? actId) {
     double vSpacing = 10;
     return Form(
-      //padding: const EdgeInsets.all(10),
-      //itemExtent: 70,
+        //padding: const EdgeInsets.all(10),
+        //itemExtent: 70,
         key: _formKey,
         child: Padding(
             padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
@@ -143,19 +145,20 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   SizedBox(height: vSpacing),
                   TextFormField(
                     controller:
-                    _dateCtrl, //editing controller of this TextField
+                        _dateCtrl, //editing controller of this TextField
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        icon: Icon(Icons
-                            .calendar_today), //icon of text field
+                        icon: Icon(Icons.calendar_today), //icon of text field
                         labelText: "Date" //label text of field
-                    ),
-                    readOnly: true, //set it true, so that user will not able to edit text
+                        ),
+                    readOnly:
+                        true, //set it true, so that user will not able to edit text
                     onTap: () async {
                       DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate: _dateCtrl.text.isEmpty ? DateTime.now() : DateFormat("dd.MM.yyyy")
-                              .parse(_dateCtrl.text),
+                          initialDate: _dateCtrl.text.isEmpty
+                              ? DateTime.now()
+                              : DateFormat("dd.MM.yyyy").parse(_dateCtrl.text),
                           firstDate: DateTime(
                               1960), //DateTime.now() - not to allow to choose before today.
                           lastDate: DateTime.now(),
@@ -164,8 +167,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       if (pickedDate != null) {
                         //print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
                         String formattedDate =
-                        DateFormat('dd.MM.yyyy')
-                            .format(pickedDate);
+                            DateFormat('dd.MM.yyyy').format(pickedDate);
                         debugPrint(
                             "Selected $formattedDate"); //formatted date output using intl package =>  2021-03-16
                         //you can implement different kind of Date Format here according to your requirement
@@ -195,7 +197,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     ),
                     controller: _distanceCtrl,
                     keyboardType: TextInputType.number,
-                    validator: (value) {return validatePositiveNumber(value);},
+                    validator: (value) {
+                      return validatePositiveNumber(value);
+                    },
                   ),
                   SizedBox(height: vSpacing),
                   TextFormField(
@@ -205,7 +209,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         icon: Icon(Icons.timer_outlined)),
                     controller: _durationCtrl,
                     keyboardType: TextInputType.number,
-                    validator: (value) {return validatePositiveNumber(value);},
+                    validator: (value) {
+                      return validatePositiveNumber(value);
+                    },
                   ),
                   SizedBox(height: vSpacing),
                   TextFormField(
@@ -215,70 +221,90 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         icon: Icon(Icons.height_outlined)),
                     controller: _climbCtrl,
                     keyboardType: TextInputType.number,
-                    validator: (value) {return validatePositiveNumber(value);},
+                    validator: (value) {
+                      return validatePositiveNumber(value);
+                    },
                   ),
                   SizedBox(height: vSpacing),
                   TextFormField(
                     //
-                      decoration:  InputDecoration(
-                          border: const OutlineInputBorder(),
-                          labelText: 'Position [12.345, 67.890]',
-                          icon: const Icon(Icons.place_rounded),
-                          suffixIcon: GestureDetector(
-                            child: Icon(Icons.my_location_outlined),
-                            onTap: () async {
-                              GeoPoint? p = await showSimplePickerLocation(
-                                context: context,
-                                isDismissible: false,
-                                title: "Select Summit Position",
-                                titleStyle: TextStyle(color: Colors.green, fontSize: 20),
-                                textConfirmPicker: "Select",
-                                textCancelPicker: "Cancel",
-                                initCurrentUserPosition: false,
-                                initPosition: (_locationCtrl.text == null || _locationCtrl.text.isEmpty ) ? GeoPoint(latitude: 47.886302 , longitude: 12.467000) : parseLocation(_locationCtrl.text),
-                                initZoom: (_locationCtrl.text == null || _locationCtrl.text.isEmpty ) ? 8 : 12,
-                              );
-                              if (p != null) {
-                                String formattedPoint =
-                                    "${p.latitude}, ${p.longitude}";
-                                debugPrint("Selected $formattedPoint");
-                                _location = p;
-                                setState(() {
-                                  _locationCtrl.text =
-                                      formattedPoint; //set output date to TextField value.
-                                });
-                              } else {
-                                debugPrint("Date is not selected");
-                              }
-                            },
-                          ),
-                        ),
-                      controller: _locationCtrl,
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        //thanks to: https://stackoverflow.com/a/18690202
-                        final locationPattern = RegExp(r'^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$');
-                        if ((value?.isNotEmpty ?? false)) {
-                          if(!locationPattern.hasMatch(_locationCtrl.text)) {
-                            return "Please enter format in format: [12.345, 67.890]";
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Position [12.345, 67.890]',
+                      icon: const Icon(Icons.place_rounded),
+                      suffixIcon: GestureDetector(
+                        child: Icon(Icons.my_location_outlined),
+                        onTap: () async {
+                          GeoPoint? p = await showSimplePickerLocation(
+                            context: context,
+                            isDismissible: false,
+                            title: "Select Summit Position",
+                            titleStyle:
+                                TextStyle(color: Colors.green, fontSize: 20),
+                            textConfirmPicker: "Select",
+                            textCancelPicker: "Cancel",
+                            initCurrentUserPosition: false,
+                            initPosition: (_locationCtrl.text == null ||
+                                    _locationCtrl.text.isEmpty)
+                                ? GeoPoint(
+                                    latitude: 47.886302, longitude: 12.467000)
+                                : parseLocation(_locationCtrl.text),
+                            initZoom: (_locationCtrl.text == null ||
+                                    _locationCtrl.text.isEmpty)
+                                ? 8
+                                : 12,
+                          );
+                          if (p != null) {
+                            String formattedPoint =
+                                "${p.latitude}, ${p.longitude}";
+                            debugPrint("Selected $formattedPoint");
+                            _location = p;
+                            setState(() {
+                              _locationCtrl.text =
+                                  formattedPoint; //set output date to TextField value.
+                            });
+                          } else {
+                            debugPrint("Date is not selected");
                           }
-                        }
-                      },
-                      //readOnly: true,
-                      //onTap:
+                        },
                       ),
-
+                    ),
+                    controller: _locationCtrl,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      //thanks to: https://stackoverflow.com/a/18690202
+                      final locationPattern = RegExp(
+                          r'^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$');
+                      if ((value?.isNotEmpty ?? false)) {
+                        if (!locationPattern.hasMatch(_locationCtrl.text)) {
+                          return "Please enter format in format: [12.345, 67.890]";
+                        }
+                      }
+                    },
+                    //readOnly: true,
+                    //onTap:
+                  ),
                   SizedBox(height: vSpacing),
+                  gpxFile != null
+                      ? gpxWidget()
+                      : Container(child: Text("no file")),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                            border: Border.all(color: Colors.lightGreen),
+                          border: Border.all(color: Colors.lightGreen),
                         ),
-                        child: TextButton(onPressed: (){addGPX(context);},child: Text("Add GPX")),
+                        child: TextButton(
+                            onPressed: () {
+                              addGPX(context);
+                              setState(() {});
+                            },
+                            child: Text("Add GPX")),
                       ),
-                      SizedBox(width: 50,),
+                      SizedBox(
+                        width: 50,
+                      ),
                       //Expanded(child: Container()),
                       Container(
                           color: Colors.lightGreen,
@@ -289,13 +315,16 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                   var activity = MountainActivity(
                                       id: _editMode ? actId! : null,
                                       mountainName: _nameCtrl.text,
-                                      climb:
-                                      int.tryParse(_climbCtrl.text),
-                                      distance: double.tryParse(
-                                          _distanceCtrl.text),
-                                      duration: double.tryParse(
-                                          _durationCtrl.text),
-                                      location: (_locationCtrl.text == null || _locationCtrl.text.isEmpty )? null : parseLocation(_locationCtrl.text),//_location,
+                                      climb: int.tryParse(_climbCtrl.text),
+                                      distance:
+                                          double.tryParse(_distanceCtrl.text),
+                                      duration:
+                                          double.tryParse(_durationCtrl.text),
+                                      location: (_locationCtrl.text == null ||
+                                              _locationCtrl.text.isEmpty)
+                                          ? null
+                                          : parseLocation(
+                                              _locationCtrl.text), //_location,
                                       participants: _visitorCtrl.text,
                                       date: DateFormat("dd.MM.yyyy")
                                           .parse(_dateCtrl.text));
@@ -303,16 +332,21 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                   int? id = null;
                                   if (_editMode) {
                                     id = actId;
-                                     await DatabaseHelper.instance
+                                    await DatabaseHelper.instance
                                         .update(activity);
                                   } else {
                                     id = await DatabaseHelper.instance
                                         .addActivity(activity);
                                   }
-                                  if (gpxFile!=null && id!=null) {
-                                    final directory = await getApplicationDocumentsDirectory();
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Saved gpx id: $id (actId: $actId")));
-                                    gpxFile!.copy("${directory.path}/track_${id}.gpx");
+                                  if (gpxFile != null && id != null) {
+                                    final directory =
+                                        await getApplicationDocumentsDirectory();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                "Saved gpx id: $id (actId: $actId")));
+                                    gpxFile!.copy(
+                                        "${directory.path}/track_${id}.gpx");
                                   }
                                   Navigator.pop(context);
                                 } else {
@@ -320,17 +354,13 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                 }
                               },
                               child: Text(
-                                _editMode
-                                    ? "Edit Activity"
-                                    : "Add Activity",
+                                _editMode ? "Edit Activity" : "Add Activity",
                                 style: const TextStyle(
                                     backgroundColor: Colors.lightGreen,
                                     color: Colors.white),
                               ))),
-
                     ],
                   )
-
                 ],
               ),
             )));
@@ -342,7 +372,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
     _editMode = actId != null;
     debugPrint("EditMode: $_editMode");
 
-    
     return Scaffold(
         appBar: AppBar(
           title: _editMode == true
@@ -358,21 +387,21 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   ),
                 ],
         ),
-        body: _editMode? FutureBuilder(
-            future: DatabaseHelper.instance.getActivity(actId!),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Text("No data");
-              }
-              MountainActivity act = snapshot.data as MountainActivity;
-              if (_editMode && !edited) {
-                edited = true;
-                setInputFields(act);
-              }
-              return buildForm(act.id);
-            }
-            ) : buildForm(null)
-    );
+        body: _editMode
+            ? FutureBuilder(
+                future: DatabaseHelper.instance.getActivity(actId!),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Text("No data");
+                  }
+                  MountainActivity act = snapshot.data as MountainActivity;
+                  if (_editMode && !edited) {
+                    edited = true;
+                    setInputFields(act);
+                  }
+                  return buildForm(act.id);
+                })
+            : buildForm(null));
   }
 
   GeoPoint parseLocation(String text) {
@@ -383,16 +412,14 @@ class _AddActivityFormState extends State<AddActivityForm> {
   }
 
   validatePositiveNumber(value) {
-      if ((value?.isNotEmpty ?? false) &&
-          !(double.tryParse(value!) == null)) {
-        if (double.tryParse(value)! < 0) {
-          return 'Insert positive value';
-        }
-        return null;
-      } else if (value?.isNotEmpty ?? false) {
-        return 'Please enter a positive number!';
+    if ((value?.isNotEmpty ?? false) && !(double.tryParse(value!) == null)) {
+      if (double.tryParse(value)! < 0) {
+        return 'Insert positive value';
       }
-
+      return null;
+    } else if (value?.isNotEmpty ?? false) {
+      return 'Please enter a positive number!';
+    }
   }
 
   Future<void> addGPX(BuildContext context) async {
@@ -410,5 +437,31 @@ class _AddActivityFormState extends State<AddActivityForm> {
       //user cancelled file picker dialogue
     }
   }
+
+  gpxWidget() {
+    String fname = path.basename(gpxFile!.path);
+    fname = "mmmmmmmmmmmm.gpx";
+    String txt;
+    if (fname.length>12) {
+      txt = fname.substring(0,4)+"..."+fname.substring(fname.length-10,fname.length);
+    } else {
+      txt = fname;
+    }
+
+    return Container(
+      width: 240,
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.all(Radius.circular(80))),
+        child: Row(children: [
+          Text( txt,
+              style: TextStyle(color: Colors.white),),
+          Container(width: 10,),
+          Icon(Icons.close, color: Colors.deepOrange),
+    ],)
+    );
+  }
+
   //build()
 } //class
