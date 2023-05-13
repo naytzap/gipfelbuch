@@ -1,11 +1,13 @@
 import 'dart:math';
 import 'dart:io';
+import 'package:maps_toolkit/maps_toolkit.dart' as mt;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/models/mountain_activity.dart';
 
 import '../database_helper.dart';
@@ -108,6 +110,10 @@ class _FMapState extends State<FMap> {
   }
 
   Future<List<Polyline>> getPolylines() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    debugPrint("Prefs");
+    final int tolerance = prefs.getInt("gpxTolerance")??25;
+    debugPrint("GPX tolerance set to $tolerance meters");
     var activities = await DatabaseHelper.instance.getAllActivities();
     final directory = await getApplicationDocumentsDirectory();
 
@@ -131,9 +137,37 @@ class _FMapState extends State<FMap> {
         //asc = trackPoints.reduce((this,next)=>())
         //debugPrint("Found peak at $peakHeight m");
         //debugPrint(points.toString());
+        int pointsBefore = points.length;
+        List<mt.LatLng> cPoints = points.map((e)=>mt.LatLng(e.latitude,e.longitude)).toList();
+        points = mt.PolygonUtil.simplify(cPoints, tolerance).map((e)=>LatLng(e.latitude, e.longitude)).toList();
+        debugPrint("Reduced from $pointsBefore to ${points.length}");
         polyList.add(Polyline(color: Colors.teal.withOpacity(0.75),strokeWidth: 3, points: points));
+
       }
     }
       return polyList;
   }
+
+  double calculateDistance(LatLng p1, LatLng p2){
+    /*Returns distance in meters*/
+    double lat1 = p1.latitude;
+    double lon1 = p1.longitude;
+    double lat2 = p2.latitude;
+    double lon2 = p2.longitude;
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 - c((lat2 - lat1) * p)/2 +
+        c(lat1 * p) * c(lat2 * p) *
+            (1 - c((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a)) * 1000;
+  }
+
+  double calculateTrackDistance(List<LatLng> data) {
+    double totalDistance = 0;
+    for(var i = 0; i < data.length-1; i++){
+      totalDistance += calculateDistance(data[i], data[i+1]);
+    }
+    return totalDistance;
+  }
+
 }

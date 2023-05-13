@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/database_helper.dart';
 import 'package:testapp/models/activities.dart';
 import 'package:testapp/models/mountain_activity.dart';
@@ -18,52 +19,52 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-
   Column devFunctions() {
     return Column(children: [
-    const SizedBox(height: 20),
-    InkWell(
-    onTap: () {
-    clearCachedImgs(context);
-    },
-    child: Container(
-    alignment: Alignment.center,
-    color: Colors.red,
-    height: 50,
-    child: const Text(
-    "Delete cached images",
-    style: TextStyle(fontSize: 20),
-    ),
-    )),
-    const SizedBox(height: 20),
-    InkWell(
-    onTap: () {
-    clearThumbs(context);
-    },
-    child: Container(
-    alignment: Alignment.center,
-    color: Colors.orange,
-    height: 50,
-    child: const Text(
-    "Delete cached thumbnails",
-    style: TextStyle(fontSize: 20),
-    ),
-    )),
-    const SizedBox(height: 20),
-    InkWell(
-    onTap: () {
-    clearDb(context);
-    },
-    child: Container(
-    alignment: Alignment.center,
-    color: Colors.red,
-    height: 50,
-    child: const Text(
-    "Delete database",
-    style: TextStyle(fontSize: 20),
-    ),
-    )),
-    const SizedBox(height: 20),]);
+      const SizedBox(height: 20),
+      InkWell(
+          onTap: () {
+            clearCachedImgs(context);
+          },
+          child: Container(
+            alignment: Alignment.center,
+            color: Colors.red,
+            height: 50,
+            child: const Text(
+              "Delete cached images",
+              style: TextStyle(fontSize: 20),
+            ),
+          )),
+      const SizedBox(height: 20),
+      InkWell(
+          onTap: () {
+            clearThumbs(context);
+          },
+          child: Container(
+            alignment: Alignment.center,
+            color: Colors.orange,
+            height: 50,
+            child: const Text(
+              "Delete cached thumbnails",
+              style: TextStyle(fontSize: 20),
+            ),
+          )),
+      const SizedBox(height: 20),
+      InkWell(
+          onTap: () {
+            clearDb(context);
+          },
+          child: Container(
+            alignment: Alignment.center,
+            color: Colors.red,
+            height: 50,
+            child: const Text(
+              "Delete database",
+              style: TextStyle(fontSize: 20),
+            ),
+          )),
+      const SizedBox(height: 20),
+    ]);
   }
 
   Future<void> loadDemoDb(BuildContext context) async {
@@ -84,29 +85,35 @@ class _SettingsState extends State<Settings> {
 
   void clearDb(BuildContext context) async {
     debugPrint("clearing database");
-      Widget deleteButton = TextButton(
-        child: const Text("Delete", style: TextStyle(color: Colors.red)),
-        onPressed:  () async {
-          //Navigator.pop(context);
-          List<MountainActivity> list =  await DatabaseHelper.instance.getAllActivities();
-          for (MountainActivity a in list) {
-            DatabaseHelper.instance.delete(a.id!);
-          }
-          var count = 0;
-          Navigator.popUntil(context, (route) {
-            return count++ == 2;
-          });
-        },
-      );
+    Widget deleteButton = TextButton(
+      child: const Text("Delete", style: TextStyle(color: Colors.red)),
+      onPressed: () async {
+        //Navigator.pop(context);
+        List<MountainActivity> list =
+            await DatabaseHelper.instance.getAllActivities();
+        for (MountainActivity a in list) {
+          DatabaseHelper.instance.delete(a.id!);
+        }
+        var count = 0;
+        Navigator.popUntil(context, (route) {
+          return count++ == 2;
+        });
+      },
+    );
 
-      AlertDialog alert = AlertDialog(
-        title: const Text("Delete database?"),
-        content: const Text("Are you sure? This can't be undone!\n(maybe do a export first!)"),
-        actions: [
-          deleteButton,
-          TextButton(child: const Text("Cancel"), onPressed:  () {Navigator.of(context).pop();}),
-        ],
-      );
+    AlertDialog alert = AlertDialog(
+      title: const Text("Delete database?"),
+      content: const Text(
+          "Are you sure? This can't be undone!\n(maybe do a export first!)"),
+      actions: [
+        deleteButton,
+        TextButton(
+            child: const Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            }),
+      ],
+    );
 
     // show the dialog
     showDialog(
@@ -122,29 +129,29 @@ class _SettingsState extends State<Settings> {
   void clearThumbs(BuildContext context) async {
     final directory = await getApplicationDocumentsDirectory();
     var counter = 0;
-    for(var i=0; i<1000; i++) {
-      File image =  File('${directory.path}/activity_${i}_thumbnail');
-      if(await image.exists()) {
+    for (var i = 0; i < 1000; i++) {
+      File image = File('${directory.path}/activity_${i}_thumbnail');
+      if (await image.exists()) {
         debugPrint("Deleted ${image.path}");
         image.delete();
         counter++;
       }
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Deleted $counter thumbnails")));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Deleted $counter thumbnails")));
   }
 
   void clearCachedImgs(BuildContext context) {
     Widget deleteButton = TextButton(
       child: const Text("Delete", style: TextStyle(color: Colors.red)),
-      onPressed:  () async {
+      onPressed: () async {
         clearThumbs(context);
         final directory = await getApplicationDocumentsDirectory();
         //try to delete 5000 ids (bad practice...)
         var counter = 0;
-        for(var i=0; i<1000; i++) {
-          File image =  File('${directory.path}/activity_$i');
-          if(await image.exists()) {
+        for (var i = 0; i < 1000; i++) {
+          File image = File('${directory.path}/activity_$i');
+          if (await image.exists()) {
             debugPrint("Deleted ${image.path}");
             image.delete();
             counter++;
@@ -159,13 +166,17 @@ class _SettingsState extends State<Settings> {
       },
     );
 
-
     AlertDialog alert = AlertDialog(
       title: const Text("Delete cached images?"),
-      content: const Text("Are you sure? This can't be undone!\n(won't delete images of your gallery :) )"),
+      content: const Text(
+          "Are you sure? This can't be undone!\n(won't delete images of your gallery :) )"),
       actions: [
         deleteButton,
-        TextButton(child: const Text("Cancel"), onPressed:  () {Navigator.of(context).pop();}),
+        TextButton(
+            child: const Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            }),
       ],
     );
 
@@ -200,32 +211,32 @@ class _SettingsState extends State<Settings> {
       var existingActivities = await DatabaseHelper.instance.getAllActivities();
       //debugPrint(data);
       var imports = 0;
-      for (var element in data)  {
-          MountainActivity impAct = MountainActivity.fromMap(element);
-          MountainActivity? match = existingActivities.firstWhereOrNull((e) => (e.mountainName == impAct.mountainName || e.date == impAct.date));
-          if (match==null) {
-            var id = await DatabaseHelper.instance.addActivity(
-                MountainActivity(
-                    id: null,
-                    mountainName: impAct.mountainName,
-                    participants: impAct.participants,
-                    date: impAct.date,
-                    distance: impAct.distance,
-                    duration: impAct.duration,
-                    climb: impAct.climb,
-                    location: impAct.location
-                ));
-            debugPrint("Added new activity: ${impAct.mountainName} (id: $id)");
-            imports++;
-          } else {/*
+      for (var element in data) {
+        MountainActivity impAct = MountainActivity.fromMap(element);
+        MountainActivity? match = existingActivities.firstWhereOrNull((e) =>
+            (e.mountainName == impAct.mountainName || e.date == impAct.date));
+        if (match == null) {
+          var id = await DatabaseHelper.instance.addActivity(MountainActivity(
+              id: null,
+              mountainName: impAct.mountainName,
+              participants: impAct.participants,
+              date: impAct.date,
+              distance: impAct.distance,
+              duration: impAct.duration,
+              climb: impAct.climb,
+              location: impAct.location));
+          debugPrint("Added new activity: ${impAct.mountainName} (id: $id)");
+          imports++;
+        } else {
+          /*
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     duration: const Duration(milliseconds: 750),
                     content: Text("Skipped ${impAct.mountainName} (${impAct.date} already exists!)")));*/
-          }
+        }
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Imported $imports/${data.length} activities.")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Imported $imports/${data.length} activities.")));
     } else {
       // User canceled the picker
     }
@@ -255,10 +266,11 @@ class _SettingsState extends State<Settings> {
 
   bool enableDevFuncs = false;
 
+  //TextEditingController _controller = TextEditingController();
+  //_controller.text =
+
   @override
   Widget build(BuildContext context) {
-
-
 
     return Scaffold(
         appBar: AppBar(
@@ -312,16 +324,28 @@ class _SettingsState extends State<Settings> {
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
-                Row(children:[
-                  Text("Enable developer options "),
-                Switch(
-                  value: enableDevFuncs,
-                  onChanged: (bool value) {
-                    setState(() {
-                      enableDevFuncs = value;
-                    });
-                  },)]),
-                    enableDevFuncs?devFunctions():Container(),
+                    const SizedBox(height: 20),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(hintText: "GPX tolerance", labelText: "GPX tolerance", border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+                      onChanged: (val) async {
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        prefs.setInt("gpxTolerance", int.parse(val));
+
+                      },
+                    ),
+                    Row(children: [
+                      Text("Enable developer options "),
+                      Switch(
+                        value: enableDevFuncs,
+                        onChanged: (bool value) {
+                          setState(() {
+                            enableDevFuncs = value;
+                          });
+                        },
+                      )
+                    ]),
+                    enableDevFuncs ? devFunctions() : Container(),
                   ],
                 ))));
   }
