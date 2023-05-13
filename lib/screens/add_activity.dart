@@ -8,6 +8,7 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:text_scroll/text_scroll.dart';
 
 import '../database_helper.dart';
 import '../models/mountain_activity.dart';
@@ -39,6 +40,15 @@ class _AddActivityFormState extends State<AddActivityForm> {
   @override
   void initState() {
     super.initState();
+  }
+
+  loadInitGpx() async {
+    final int actId = ModalRoute.of(context)?.settings.arguments as int;
+    final directory =   await getApplicationDocumentsDirectory();
+    File? savedFile = File("${directory.path}/track_${actId}.gpx");
+    setState((){
+      debugPrint("loaded file");
+      gpxFile = savedFile.existsSync()?savedFile:null;});
   }
 
   @override
@@ -286,8 +296,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   ),
                   SizedBox(height: vSpacing),
                   gpxFile != null
-                      ? gpxWidget()
-                      : Container(child: Text("no file")),
+                      ? gpxWidget(actId)
+                      : Container(child: Text("No GPX file")),
+                  SizedBox(height: vSpacing),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -298,9 +309,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         child: TextButton(
                             onPressed: () {
                               addGPX(context);
-                              setState(() {});
+                              //setState(() {});
                             },
-                            child: Text("Add GPX")),
+                            child: gpxFile == null ? Text("Add GPX") : Text("Change GPX")),
                       ),
                       SizedBox(
                         width: 50,
@@ -338,13 +349,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                     id = await DatabaseHelper.instance
                                         .addActivity(activity);
                                   }
-                                  if (gpxFile != null && id != null) {
+                                  if (gpxFile != null && id != null && path.basename(gpxFile!.path)!="track_$id.gpx") {
                                     final directory =
                                         await getApplicationDocumentsDirectory();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                "Saved gpx id: $id (actId: $actId")));
                                     gpxFile!.copy(
                                         "${directory.path}/track_${id}.gpx");
                                   }
@@ -354,7 +361,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                 }
                               },
                               child: Text(
-                                _editMode ? "Edit Activity" : "Add Activity",
+                                _editMode ? "Save changes" : "Add Activity",
                                 style: const TextStyle(
                                     backgroundColor: Colors.lightGreen,
                                     color: Colors.white),
@@ -398,6 +405,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   if (_editMode && !edited) {
                     edited = true;
                     setInputFields(act);
+                    loadInitGpx();
                   }
                   return buildForm(act.id);
                 })
@@ -430,7 +438,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
     );
 
     if (result != null) {
-      gpxFile = File(result.files.single.path ?? "");
+      setState((){gpxFile = File(result.files.single.path ?? "");});
       debugPrint("Picked GPX ${gpxFile!.path}");
       //TODO: Test for gpx extension if not possible to filter to GPX
     } else {
@@ -438,29 +446,50 @@ class _AddActivityFormState extends State<AddActivityForm> {
     }
   }
 
-  gpxWidget() {
+  gpxWidget(id) {
     String fname = path.basename(gpxFile!.path);
-    fname = "mmmmmmmmmmmm.gpx";
-    String txt;
-    if (fname.length>12) {
-      txt = fname.substring(0,4)+"..."+fname.substring(fname.length-10,fname.length);
-    } else {
-      txt = fname;
+    //fname = "oneofthe_longestFileNamesyouCan_imagine123456.gpx";
+    if(fname=="track_$id.gpx") {
+     fname = "GPX-File";
     }
-
     return Container(
-      width: 240,
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
         decoration: BoxDecoration(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(10),
+
+    ),child:Row(
+      mainAxisSize: MainAxisSize.min,
+        children:[Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+            constraints: const BoxConstraints(maxWidth: 250),
+            child:
+              Text( fname,
+              style: const TextStyle(color: Colors.white),),
+        )
+      ],
+    ),
+          _editMode ? Container() :Container(width:10),
+          _editMode ? Container() :
+          InkWell(onTap: (){setState(() {
+            gpxFile = null;
+          });},child: Icon(Icons.delete, color: Colors.white)),]));
+    /*return Container(
+        constraints: BoxConstraints(minWidth: 50, maxWidth: 250),
+      //width: 240,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        decoration: const BoxDecoration(
             color: Colors.black54,
             borderRadius: BorderRadius.all(Radius.circular(80))),
         child: Row(children: [
           Text( txt,
-              style: TextStyle(color: Colors.white),),
+              style: const TextStyle(color: Colors.white),),
           Container(width: 10,),
-          Icon(Icons.close, color: Colors.deepOrange),
+          const Icon(Icons.close, color: Colors.deepOrange),
     ],)
-    );
+    );*/
   }
 
   //build()

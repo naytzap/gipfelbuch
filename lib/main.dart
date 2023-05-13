@@ -4,6 +4,7 @@ import 'package:testapp/screens/fmap.dart';
 import 'package:testapp/screens/settings.dart';
 import 'package:testapp/screens/statistics.dart';
 import 'package:testapp/widgets/activity_search_delegate.dart';
+import 'package:testapp/widgets/search_widget.dart';
 import 'screens/add_activity.dart';
 import 'screens/about.dart';
 //import 'screens/osmmap.dart';
@@ -52,9 +53,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool searchActive = false;
+  String query = "";
   int currentIndex = 0;
   var screens = [
-    ActivityList(),
+    ActivityList(query: "",),
     FMap(),
   ];
 
@@ -69,8 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   refresh() {
     setState((){
-      //has to be done to redraw screen, best option?
-      screens=[ActivityList(),FMap()];
+      screens=[ActivityList(query: query),FMap()];
     });
   }
 
@@ -78,22 +80,39 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-        /*actions: [
-          IconButton(
-            onPressed: ()  async {
-              await showSearch(
-                  context: context,
-                  delegate: ActivitySearchDelegate()
-              );
-            },
-            icon: const Icon(Icons.search),
-          )
-        ],*/
+        title: searchActive ? SearchWidget(text: query, onChanged: searchActivities ,onClosed: setSearch, hintText: "Activity or Person Name") : Text(widget.title),
+        actions: [
+         searchActive ? Container() : IconButton(onPressed: (){setState(() {
+            searchActive = !searchActive;
+          });}, icon: const Icon(Icons.search))
+        ],
       ),
       drawer: NavDrawer(parentFunc: refresh,),
       body: screens[currentIndex],
       bottomNavigationBar: BottomNavBar(notifyParent: changeScreen,),
       );
+  }
+
+  void setSearch(bool newState) {
+    setState(() {
+      searchActive = newState;
+    });
+  }
+
+  void searchActivities(String query) {
+    /*final activities = allActivities.where((act) {
+      final nameLower = act.name.toLowerCase();
+      final participantsLower = act.participants.toLowerCase();
+      final searchLower = query.toLowerCase();
+
+      return nameLower.contains(searchLower) ||
+          participantsLower.contains(searchLower);
+    }).toList();*/
+
+    setState(() {
+      this.query = query;
+      //this.activities = activities;
+    });
+    refresh();
   }
 }

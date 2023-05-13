@@ -11,7 +11,8 @@ import 'activity_detail.dart';
 
 class ActivityList extends StatefulWidget {
   static const double imagePadding = 0;
-  ActivityList({super.key,});
+  String query = "";
+  ActivityList({this.query="Osser",super.key,});
 
   @override
   State<ActivityList> createState() => _ActivityListState();
@@ -43,11 +44,13 @@ class _ActivityListState extends State<ActivityList> {
                   style: TextStyle(color: Colors.grey, fontSize: 22),
                 ));
               }
+              List<MountainActivity> allActivities = snapshot.data!;
+              List<MountainActivity>? activities = searchActivities(widget.query, allActivities);
               return ListView.separated(
                   cacheExtent: 4000,
                   separatorBuilder: (BuildContext context, int index) =>
                       Container(height: 5),
-                  itemCount: snapshot.data!.length,
+                  itemCount: activities.length,
                   itemBuilder: (context, index) {
                     return Card(
                         clipBehavior: Clip.antiAlias,
@@ -58,7 +61,7 @@ class _ActivityListState extends State<ActivityList> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => ActivityDetail(
-                                          snapshot.data!.elementAt(index).id!))).then((_) => setState(() {}));
+                                          activities.elementAt(index).id!))).then((_) => setState(() {}));
                             },
                             child: SizedBox(
                                 width: 250,
@@ -73,7 +76,7 @@ class _ActivityListState extends State<ActivityList> {
                                           children: [
                                             SizedBox(
                                               width: 190,
-                                              child: Text(snapshot.data!
+                                              child: Text(activities
                                           .elementAt(index)
                                           .mountainName,
                                                 overflow: TextOverflow.fade,
@@ -82,11 +85,11 @@ class _ActivityListState extends State<ActivityList> {
                                                 style: const TextStyle(
                                                     fontSize: 20)),),
                                             Text(DateFormat('dd.MM.yyyy')
-                                                .format(snapshot.data!
+                                                .format(activities
                                                     .elementAt(index)
                                                     .date)),
                                             Expanded(child: Container()),
-                                            getInfoFooter(snapshot.data?.elementAt(index).distance,snapshot.data!.elementAt(index).duration,snapshot.data!.elementAt(index).climb)
+                                            getInfoFooter(activities.elementAt(index).distance,activities.elementAt(index).duration,activities.elementAt(index).climb)
 
                                           ]),
                                     ),
@@ -96,10 +99,9 @@ class _ActivityListState extends State<ActivityList> {
                                             CrossAxisAlignment.end,
                                         children: [
                                           Padding(
-                                              padding: const EdgeInsets.all(
-                                                  ActivityList.imagePadding),
+                                              padding: const EdgeInsets.all(0),
                                               child: FutureBuilder(
-                                                  future: loadImage(snapshot.data!.elementAt(index).id!),
+                                                  future: loadImage(activities.elementAt(index).id!),
                                                     builder: (context, snapshot2) {
                                                     if(!snapshot2.hasData) {
                                                       //debugPrint("NO IMAGE DATA FOR: ${snapshot.data!.elementAt(index).mountainName}");
@@ -143,7 +145,7 @@ class _ActivityListState extends State<ActivityList> {
   Future<File?> loadImage(int activityId) async {
     final directory = await getApplicationDocumentsDirectory();
     File thumbnail = File('${directory.path}/activity_${activityId}_thumbnail');
-    if(!await thumbnail.exists()) {;
+    if(!await thumbnail.exists()) {
       File image = File('${directory.path}/activity_$activityId');
       if(image.existsSync()){
         //we have a image but no thumbnail yet...
@@ -181,6 +183,25 @@ class _ActivityListState extends State<ActivityList> {
     }
     return Text(txt);
   }
+
+  List<MountainActivity> searchActivities(String query,List<MountainActivity> allActivities) {
+    final activities = allActivities.where((act) {
+      final nameLower = act.mountainName.toLowerCase();
+      //final participantsLower = act.participants?.toLowerCase();
+      final searchLower = query.toLowerCase();
+
+      bool foundParticipant = false;
+      if(act.participants != null && act.participants!.isNotEmpty) {
+        foundParticipant = act.participants!.toLowerCase().contains(searchLower);
+      }
+
+      return nameLower.contains(searchLower) || foundParticipant;
+    }).toList();
+
+    return activities;
+  }
+
+
 
 
 
