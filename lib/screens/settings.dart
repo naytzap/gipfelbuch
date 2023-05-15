@@ -324,6 +324,8 @@ class _SettingsState extends State<Settings> {
                           ),
                         )),
                     const SizedBox(height: 20),
+                    themeSelectorWidget(),
+                    const SizedBox(height: 20,),
                     FutureBuilder(
                         future: getGpxTolerance(),
                         builder: (context, snapshot) {
@@ -335,6 +337,7 @@ class _SettingsState extends State<Settings> {
                                 controller: controller,
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
+                                  icon: Icon(Icons.satellite),
                                     hintText: "1...100 [m]",
                                     labelText: "GPX tolerance [m]",
                                     border: OutlineInputBorder(
@@ -347,6 +350,7 @@ class _SettingsState extends State<Settings> {
                                 });
                             var gpxTolerance = snapshot.data;
                             controller.text = snapshot.data.toString();
+                            //return ListTile(leading: Icon(Icons.satellite), title: Text("GPX Track tolerance"), subtitle: Text("1...100 [m]"),trailing: tf);
                             return tf;
                             //TODO: ListTile with ontap dropdown menu
                             //return ListTile(title: Text("GPX Track Visualization"),subtitle: Text("$gpxTolerance m tolerance"),,);
@@ -373,4 +377,39 @@ class _SettingsState extends State<Settings> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt("gpxTolerance") ?? defaultValue;
   }
+
+  getThemeSettings() async {
+    String defaultValue = "light";
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("theme") ?? defaultValue;
+  }
+
+
+  themeSelectorWidget() =>
+    FutureBuilder(future: getThemeSettings(), builder: (context, snapshot) {
+      if(!snapshot.hasData) {
+        return Container();
+      }
+      else {
+
+        var btn = DropdownButton<String>(
+            value: snapshot.data!.toString(),
+            isDense: true,
+            //icon: const Icon(Icons.arrow_downward),
+            onChanged: (String? value) {
+              // This is called when the user selects an item.
+              setState(() async {
+                SharedPreferences prefs =
+                await SharedPreferences.getInstance();
+                prefs.setString("theme", value!);
+              });
+            },
+            items: [DropdownMenuItem(value: "light", child: Text("light")),DropdownMenuItem(value: "dark", child: Text("dark")),DropdownMenuItem(value: "system", child: Text("system")),]
+        );
+        //return Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("App Theme"),Spacer() ,btn],);
+        return ListTile(leading: Icon(Icons.color_lens), title: Row(children: [Text("App Theme"), Spacer(), btn ]), subtitle: Text("will change after app restart"),);
+      }
+
+    });
+
 }
