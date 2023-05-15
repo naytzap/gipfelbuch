@@ -62,12 +62,13 @@ class _FMapState extends State<FMap> {
                   center: widget.initPos??LatLng(48, 12.5),
                   zoom: widget.initPos!=null ? 12 : 7,
                   maxZoom: 17,
-                  minZoom: 5,
+                  minZoom: 4,
                   interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                 ),
                 children: [
                   TileLayer(
                     urlTemplate:
+                        //https://tile.openstreetmap.de/{z}/{x}/{y}.png', //german
                     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
                   FutureBuilder<List<Polyline>>(

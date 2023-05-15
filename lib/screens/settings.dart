@@ -271,7 +271,6 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -325,15 +324,34 @@ class _SettingsState extends State<Settings> {
                           ),
                         )),
                     const SizedBox(height: 20),
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(hintText: "GPX tolerance", labelText: "GPX tolerance", border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-                      onChanged: (val) async {
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        prefs.setInt("gpxTolerance", int.parse(val));
-
-                      },
-                    ),
+                    FutureBuilder(
+                        future: getGpxTolerance(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Container();
+                          } else {
+                            var controller = TextEditingController();
+                            TextField tf = TextField(
+                                controller: controller,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                    hintText: "1...100 [m]",
+                                    labelText: "GPX tolerance [m]",
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15))),
+                                onChanged: (val) async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  prefs.setInt("gpxTolerance", int.parse(val));
+                                });
+                            var gpxTolerance = snapshot.data;
+                            controller.text = snapshot.data.toString();
+                            return tf;
+                            //TODO: ListTile with ontap dropdown menu
+                            //return ListTile(title: Text("GPX Track Visualization"),subtitle: Text("$gpxTolerance m tolerance"),,);
+                          }
+                        }),
                     Row(children: [
                       Text("Enable developer options "),
                       Switch(
@@ -348,5 +366,11 @@ class _SettingsState extends State<Settings> {
                     enableDevFuncs ? devFunctions() : Container(),
                   ],
                 ))));
+  }
+
+  getGpxTolerance() async {
+    int defaultValue = 25;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt("gpxTolerance") ?? defaultValue;
   }
 }
