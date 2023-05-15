@@ -8,7 +8,7 @@ import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/models/mountain_activity.dart';
+import 'package:gipfelbuch/models/mountain_activity.dart';
 
 import '../database_helper.dart';
 import '../widgets/activity_detail.dart';

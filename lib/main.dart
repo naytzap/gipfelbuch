@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:testapp/screens/fmap.dart';
-import 'package:testapp/screens/settings.dart';
-import 'package:testapp/screens/statistics.dart';
-import 'package:testapp/widgets/activity_search_delegate.dart';
-import 'package:testapp/widgets/search_widget.dart';
+import 'package:gipfelbuch/screens/fmap.dart';
+import 'package:gipfelbuch/screens/settings.dart';
+import 'package:gipfelbuch/screens/statistics.dart';
+import 'package:gipfelbuch/widgets/activity_search_delegate.dart';
+import 'package:gipfelbuch/widgets/search_widget.dart';
 import 'screens/add_activity.dart';
 import 'screens/about.dart';
 //import 'screens/osmmap.dart';

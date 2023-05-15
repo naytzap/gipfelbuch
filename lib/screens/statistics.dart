@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:testapp/database_helper.dart';
-import 'package:testapp/models/mountain_activity.dart';
+import 'package:gipfelbuch/database_helper.dart';
+import 'package:gipfelbuch/models/mountain_activity.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:url_launcher/url_launcher.dart';
 

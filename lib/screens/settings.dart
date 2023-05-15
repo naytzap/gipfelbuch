@@ -6,9 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/database_helper.dart';
-import 'package:testapp/models/activities.dart';
-import 'package:testapp/models/mountain_activity.dart';
+import 'package:gipfelbuch/database_helper.dart';
+import 'package:gipfelbuch/models/activities.dart';
+import 'package:gipfelbuch/models/mountain_activity.dart';
 import 'package:collection/collection.dart'; //firstwhereornull
 
 class Settings extends StatefulWidget {

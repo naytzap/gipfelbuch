@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
-import 'package:testapp/database_helper.dart';
-import 'package:testapp/models/mountain_activity.dart';
+import 'package:gipfelbuch/database_helper.dart';
+import 'package:gipfelbuch/models/mountain_activity.dart';
 
 //import '../models/activities.dart';
 //import '../models/mountain_activity.dart';
