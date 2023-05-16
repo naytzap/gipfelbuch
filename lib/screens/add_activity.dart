@@ -250,7 +250,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             isDismissible: false,
                             title: "Select Summit Position",
                             titleStyle:
-                                TextStyle(color: Colors.green, fontSize: 20),
+                                TextStyle(/*color: Colors.green,*/ fontSize: 20),
                             textConfirmPicker: "Select",
                             textCancelPicker: "Cancel",
                             initCurrentUserPosition: false,
@@ -302,24 +302,19 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.lightGreen),
-                        ),
-                        child: TextButton(
+                       TextButton(
                             onPressed: () {
                               addGPX(context);
                               //setState(() {});
                             },
                             child: gpxFile == null ? Text("Add GPX") : Text("Change GPX")),
-                      ),
+
                       SizedBox(
                         width: 50,
                       ),
-                      //Expanded(child: Container()),
-                      Container(
-                          color: Colors.lightGreen,
-                          child: TextButton(
+                      //Expanded(child: Container()),,
+
+                       FloatingActionButton(
                               onPressed: () async {
                                 debugPrint("Add act pressed");
                                 if (_formKey.currentState!.validate()) {
@@ -361,11 +356,11 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                 }
                               },
                               child: Text(
-                                _editMode ? "Save changes" : "Add Activity",
-                                style: const TextStyle(
+                                _editMode ? "Save" : "Add",
+                                /*style: const TextStyle(
                                     backgroundColor: Colors.lightGreen,
-                                    color: Colors.white),
-                              ))),
+                                    color: Colors.white),*/
+                              )),
                     ],
                   )
                 ],

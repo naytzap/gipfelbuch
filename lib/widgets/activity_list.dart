@@ -5,6 +5,7 @@ import 'package:flutter_native_image/flutter_native_image.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../database_helper.dart';
 import '../models/mountain_activity.dart';
 import 'activity_detail.dart';
@@ -84,10 +85,10 @@ class _ActivityListState extends State<ActivityList> {
                                                 softWrap: false,
                                                 style: const TextStyle(
                                                     fontSize: 20)),),
-                                            Text(DateFormat('dd.MM.yyyy')
+                                            Wrap(children:[Text(DateFormat('dd.MM.yyyy')
                                                 .format(activities
                                                     .elementAt(index)
-                                                    .date)),
+                                                    .date)),gpxIndicator(activities.elementAt(index).id!)]),
                                             Expanded(child: Container()),
                                             getInfoFooter(activities.elementAt(index).distance,activities.elementAt(index).duration,activities.elementAt(index).climb)
 
@@ -199,6 +200,28 @@ class _ActivityListState extends State<ActivityList> {
     }).toList();
 
     return activities;
+  }
+
+  gpxIndicator(int id) {
+    checkIfFileExists(id) async {
+      //TODO: move this to initialization, this only has to be done once!
+      var prefs = await SharedPreferences.getInstance();
+      var showIndicator = prefs.getBool("gpxIndicator")??false;
+      if(!showIndicator) {
+        return false;
+      }
+      final directory = await getApplicationDocumentsDirectory();
+      File? savedFile = File("${directory.path}/track_$id.gpx");
+      return savedFile.existsSync();
+    }
+
+    return FutureBuilder(future: checkIfFileExists(id),builder: (context, snapshot){
+      if (!snapshot.hasData || !snapshot.data!) {
+        return Container();
+      } else {
+        return const Padding(padding: EdgeInsets.only(left: 5),child:Icon(Icons.satellite,size: 20));
+      }
+    });
   }
 
 

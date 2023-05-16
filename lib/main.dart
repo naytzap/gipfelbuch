@@ -24,10 +24,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme)
     {
-      final _defaultLightColorScheme =
+      final defaultLightColorScheme =
       ColorScheme.fromSwatch(primarySwatch: Colors.green);
 
-      final _defaultDarkColorScheme = ColorScheme.fromSwatch(
+      final defaultDarkColorScheme = ColorScheme.fromSwatch(
           primarySwatch: Colors.green, brightness: Brightness.dark);
 
       return FutureBuilder(future: getThemeSettings(), builder: (context, snapshot) {
@@ -38,11 +38,11 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Gipfelbuch',
             theme: ThemeData(
-              colorScheme: lightColorScheme ?? _defaultLightColorScheme,
+              colorScheme: lightColorScheme ?? defaultLightColorScheme,
               useMaterial3: true,
             ),
             darkTheme: ThemeData(
-              colorScheme: darkColorScheme ?? _defaultDarkColorScheme,
+              colorScheme: darkColorScheme ?? defaultDarkColorScheme,
               useMaterial3: true,
             ),
             themeMode: snapshot.data == "system" ? ThemeMode.system : (snapshot.data == "dark" ? ThemeMode.dark : ThemeMode.light),

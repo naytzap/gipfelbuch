@@ -21,49 +21,42 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   Column devFunctions() {
     return Column(children: [
-      const SizedBox(height: 20),
-      InkWell(
+      ListTile(
+        leading: const Icon(Icons.landscape),
+        onTap: () {
+          loadDemoDb(context);
+        },
+        title: const Text(
+          "Load demo database",
+        ),
+      ),
+      ListTile(
           onTap: () {
             clearCachedImgs(context);
           },
-          child: Container(
-            alignment: Alignment.center,
-            color: Colors.red,
-            height: 50,
-            child: const Text(
-              "Delete cached images",
-              style: TextStyle(fontSize: 20),
+          title: const Text(
+              "Delete all activity images",
             ),
-          )),
-      const SizedBox(height: 20),
-      InkWell(
+        leading: const Icon(Icons.image_not_supported),
+          ),
+      ListTile(
           onTap: () {
             clearThumbs(context);
           },
-          child: Container(
-            alignment: Alignment.center,
-            color: Colors.orange,
-            height: 50,
-            child: const Text(
+          title: const Text(
               "Delete cached thumbnails",
-              style: TextStyle(fontSize: 20),
             ),
-          )),
-      const SizedBox(height: 20),
-      InkWell(
+        leading: const Icon(Icons.image_not_supported_outlined),
+          ),
+      ListTile(
           onTap: () {
             clearDb(context);
           },
-          child: Container(
-            alignment: Alignment.center,
-            color: Colors.red,
-            height: 50,
-            child: const Text(
+          title: const Text(
               "Delete database",
-              style: TextStyle(fontSize: 20),
             ),
-          )),
-      const SizedBox(height: 20),
+        leading: const Icon(Icons.delete_forever),
+          ),
     ]);
   }
 
@@ -271,103 +264,60 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    var sectionTextStyle = const TextStyle(fontSize: 12, fontWeight: FontWeight.bold);
     return Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
         ),
         body: SingleChildScrollView(
             child: Padding(
-                padding: const EdgeInsets.all(25),
+                padding: const EdgeInsets.all(10),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 20),
-                    InkWell(
-                        onTap: () {
-                          loadDemoDb(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.cyan,
-                          height: 50,
-                          child: const Text(
-                            "Load demo database",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                    const SizedBox(height: 20),
-                    InkWell(
-                        onTap: () {
-                          exportDb(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.teal,
-                          height: 50,
-                          child: const Text(
-                            "Export data to JSON",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                    const SizedBox(height: 20),
-                    InkWell(
-                        onTap: () {
-                          importDb(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          color: Colors.lightGreen,
-                          height: 50,
-                          child: const Text(
-                            "Import data from JSON",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                    const SizedBox(height: 20),
+                    Text("General Appearance".toUpperCase(),style: sectionTextStyle,),
                     themeSelectorWidget(),
-                    const SizedBox(height: 20,),
-                    FutureBuilder(
-                        future: getGpxTolerance(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return Container();
-                          } else {
-                            var controller = TextEditingController();
-                            TextField tf = TextField(
-                                controller: controller,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  icon: Icon(Icons.satellite),
-                                    hintText: "1...100 [m]",
-                                    labelText: "GPX tolerance [m]",
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15))),
-                                onChanged: (val) async {
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  prefs.setInt("gpxTolerance", int.parse(val));
-                                });
-                            var gpxTolerance = snapshot.data;
-                            controller.text = snapshot.data.toString();
-                            //return ListTile(leading: Icon(Icons.satellite), title: Text("GPX Track tolerance"), subtitle: Text("1...100 [m]"),trailing: tf);
-                            return tf;
-                            //TODO: ListTile with ontap dropdown menu
-                            //return ListTile(title: Text("GPX Track Visualization"),subtitle: Text("$gpxTolerance m tolerance"),,);
-                          }
-                        }),
-                    Row(children: [
-                      Text("Enable developer options "),
-                      Switch(
-                        value: enableDevFuncs,
-                        onChanged: (bool value) {
-                          setState(() {
-                            enableDevFuncs = value;
-                          });
-                        },
-                      )
-                    ]),
+                    gpxToleranceSetting(),
+                    gpxBadgeWidget(),
+                    const Divider(),
+                    Text("Data Import/Export".toUpperCase(),style: sectionTextStyle,),
+                    ListTile(
+                      leading: const Icon(Icons.file_download),
+                      onTap: () {
+                        importDb(context);
+                      },
+                      title: const Text(
+                        "Import activities from JSON",
+                      ),
+                      subtitle: const Text("Reads JSON file from device and imports activities"),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.upload_file),
+                      onTap: () {
+                        exportDb(context);
+                      },
+                      title: const Text(
+                        "Export activities to JSON",
+                      ),
+                      subtitle: const Text(
+                          "Creates a JSON file in download directory that contains activity data"),
+                    ),
+                    const Divider(),
+                    Text("Developer Options".toUpperCase(),style: sectionTextStyle,),
+                    Container(color: enableDevFuncs ? Colors.red.withOpacity(0.2) : null, child:Wrap(children: [
+                    SwitchListTile(
+                      title: const Text("Enable Developer Options"),
+                      subtitle: const Text("Be careful what you are doing!"),
+                      value: enableDevFuncs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          enableDevFuncs = value;
+                        });
+                      },
+                      secondary: const Icon(Icons.code),
+                    ),
                     enableDevFuncs ? devFunctions() : Container(),
+                      ]))
                   ],
                 ))));
   }
@@ -384,32 +334,96 @@ class _SettingsState extends State<Settings> {
     return prefs.getString("theme") ?? defaultValue;
   }
 
+  themeSelectorWidget() {
+    return FutureBuilder(
+        future: getThemeSettings(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+          String currentValue = snapshot.data!.toString();
+          return PopupMenuButton<String>(
+            initialValue: currentValue,
+            onSelected: (String value) async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString("theme", value);
+              debugPrint("Theme brightness set to: $value");
+              setState(() {});
+            },
+            child: ListTile(
+              leading: const Icon(Icons.color_lens),
+              title: Text("App Theme ($currentValue)"),
+              subtitle: const Text(
+                  "Changes after App restart"),
+            ),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem(
+                  value: "light", child: Text("Light theme")),
+              const PopupMenuItem(value: "dark", child: Text("Dark theme")),
+              const PopupMenuItem(value: "system", child: Text("Use device theme")),
+            ],
+          );
+        });
+  }
 
-  themeSelectorWidget() =>
-    FutureBuilder(future: getThemeSettings(), builder: (context, snapshot) {
+  gpxToleranceSetting() {
+    return FutureBuilder(
+        future: SharedPreferences.getInstance(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+          var currentValue = snapshot.data!.getInt("gpxTolerance") ?? 25;
+          return PopupMenuButton<int>(
+            initialValue: currentValue,
+            onSelected: (int value) async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setInt("gpxTolerance", value);
+              debugPrint("GPX Tolerance set to: $value");
+              setState(() {});
+            },
+            child: ListTile(
+              leading: const Icon(Icons.straighten),
+              title: currentValue>0?Text("GPX track detail (${currentValue}m)"):const Text("GPX track detail (tracks hidden)"),
+              subtitle: const Text(
+                  "If map view encounters performance issues, reduce details of gpx tracks"),
+            ),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+              const PopupMenuItem(
+                  value: 0, child: Text("Hide GPX tracks")),
+              const PopupMenuItem(value: 1, child: Text("Very High Detail (1m)")),
+              const PopupMenuItem(value: 5, child: Text("High Detail (5m)")),
+              const PopupMenuItem(
+                  value: 15, child: Text("Medium Detail (15m)")),
+              const PopupMenuItem(
+                  value: 25, child: Text("Default Detail (25m)")),
+              const PopupMenuItem(value: 50, child: Text("Low Detail (50m)")),
+              const PopupMenuItem(
+                  value: 100, child: Text("Very Low Detail (100m)")),
+            ],
+          );
+        });
+  }
+
+  gpxBadgeWidget() {
+
+    return FutureBuilder(future: SharedPreferences.getInstance(),builder: (context, snapshot) {
       if(!snapshot.hasData) {
         return Container();
       }
-      else {
-
-        var btn = DropdownButton<String>(
-            value: snapshot.data!.toString(),
-            isDense: true,
-            //icon: const Icon(Icons.arrow_downward),
-            onChanged: (String? value) {
-              // This is called when the user selects an item.
-              setState(() async {
-                SharedPreferences prefs =
-                await SharedPreferences.getInstance();
-                prefs.setString("theme", value!);
-              });
-            },
-            items: [DropdownMenuItem(value: "light", child: Text("light")),DropdownMenuItem(value: "dark", child: Text("dark")),DropdownMenuItem(value: "system", child: Text("system")),]
-        );
-        //return Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("App Theme"),Spacer() ,btn],);
-        return ListTile(leading: Icon(Icons.color_lens), title: Row(children: [Text("App Theme"), Spacer(), btn ]), subtitle: Text("will change after app restart"),);
-      }
-
+      var showGpxIndicator = snapshot.data!.getBool("gpxIndicator")??false;
+      return SwitchListTile(
+        title: const Text("GPX indicator"),
+        subtitle: const Text(
+            "Show an indicator if activity is associated with a GPX track"),
+        value: showGpxIndicator,
+        onChanged: (value) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool("gpxIndicator", value);
+          setState(() {});
+        },
+        secondary: const Icon(Icons.satellite),
+      );
     });
-
+  }
 }
