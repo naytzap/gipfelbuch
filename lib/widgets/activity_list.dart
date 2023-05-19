@@ -22,9 +22,22 @@ class ActivityList extends StatefulWidget {
 class _ActivityListState extends State<ActivityList> {
   //final List<MountainActivity> db = Activities.fetchAll();
   static const double _height = 115;
+  //late int thumbnailDetail = 20;
+  late SharedPreferences prefs;
 
   reloadList() {
     //this hast to be a stateful widget
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    sharedData();
+  }
+
+  void sharedData() async {
+    prefs = await SharedPreferences.getInstance(); 
   }
 
   @override
@@ -151,9 +164,10 @@ class _ActivityListState extends State<ActivityList> {
       if(image.existsSync()){
         //we have a image but no thumbnail yet...
         //debugPrint("Found image without thumb id: $activityId");
-        var newThumb =  await FlutterNativeImage.compressImage(image.path,quality: 30);
+        var thumbnailDetail = prefs.getInt("thumbnailDetail")??20;
+        var newThumb =  await FlutterNativeImage.compressImage(image.path,quality: thumbnailDetail);
         //ImageProperties props = await FlutterNativeImage.getImageProperties(image.path);
-        debugPrint("created a new thumb for $activityId");
+        debugPrint("created a new thumb for $activityId with quality $thumbnailDetail %");
         newThumb.copy("${image.path}_thumbnail");
         return await newThumb.exists() ? newThumb : null;
       } else {

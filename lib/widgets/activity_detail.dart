@@ -4,11 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:gipfelbuch/widgets/pinch_zoom_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:text_scroll/text_scroll.dart';
 
 import '../database_helper.dart';
@@ -26,6 +28,17 @@ class ActivityDetail extends StatefulWidget {
 
 class _ActivityDetailState extends State<ActivityDetail> {
   //File? image;
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    sharedData();
+  }
+
+  void sharedData() async {
+    prefs = await SharedPreferences.getInstance(); 
+  }
 
   showDeleteDialog(BuildContext context) {
     // set up the buttons
@@ -203,7 +216,8 @@ class _ActivityDetailState extends State<ActivityDetail> {
                       onTap: () async {
                         await openImageModal(context);
                       }, //pickImage,
-                      child: image != null ? Image.file(image) : defaultImage()
+                      //child: image != null ? Image.file(image) : defaultImage()
+                      child: image != null ?  PinchZoomImage(img: Image.file(image,fit: BoxFit.fill)) : defaultImage()
                       //const Image(image: AssetImage('assets/11_Langkofel_group_Dolomites_Italy.jpg'))
                       ),
                   Container(height: 5),
@@ -330,10 +344,11 @@ class _ActivityDetailState extends State<ActivityDetail> {
     final name = basename('activity_$activityId'); //.$fileExtension');
     final newImage = File('${directory.path}/$name');
     //we also need to create/update the thumbnail!
+    var thumbnailDetail = prefs.getInt("thumbnailDetail")??20;
     var newThumb =
-        await FlutterNativeImage.compressImage(oldImagePath, quality: 30);
+        await FlutterNativeImage.compressImage(oldImagePath, quality: thumbnailDetail);
     //ImageProperties props = await FlutterNativeImage.getImageProperties(image.path);
-    debugPrint("created a new thumb for $activityId");
+    debugPrint("created a new thumb for $activityId with quality $thumbnailDetail %");
     newThumb.copy("${newImage.path}_thumbnail");
     return File(oldImagePath).copy(newImage.path);
   }

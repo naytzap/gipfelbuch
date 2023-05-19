@@ -277,8 +277,10 @@ class _SettingsState extends State<Settings> {
                   children: [
                     Text("General Appearance".toUpperCase(),style: sectionTextStyle,),
                     themeSelectorWidget(),
-                    gpxToleranceSetting(),
+                    gpxToleranceWidget(),
                     gpxBadgeWidget(),
+                    thumbnailSizeWidget(),
+                    trackColorWidget(),
                     const Divider(),
                     Text("Data Import/Export".toUpperCase(),style: sectionTextStyle,),
                     ListTile(
@@ -366,7 +368,7 @@ class _SettingsState extends State<Settings> {
         });
   }
 
-  gpxToleranceSetting() {
+  gpxToleranceWidget() {
     return FutureBuilder(
         future: SharedPreferences.getInstance(),
         builder: (context, snapshot) {
@@ -405,9 +407,8 @@ class _SettingsState extends State<Settings> {
         });
   }
 
-  gpxBadgeWidget() {
-
-    return FutureBuilder(future: SharedPreferences.getInstance(),builder: (context, snapshot) {
+  gpxBadgeWidget() => FutureBuilder(
+    future: SharedPreferences.getInstance(),builder: (context, snapshot) {
       if(!snapshot.hasData) {
         return Container();
       }
@@ -425,5 +426,52 @@ class _SettingsState extends State<Settings> {
         secondary: const Icon(Icons.satellite),
       );
     });
-  }
+  
+  thumbnailSizeWidget() => FutureBuilder(future: SharedPreferences.getInstance(),builder: (context, snapshot) {
+      if(!snapshot.hasData) {
+        return Container();
+      }
+      var thumbnailDetail = snapshot.data!.getInt("thumbnailDetail")??20;
+      return PopupMenuButton<int>(
+            initialValue: thumbnailDetail,
+            onSelected: (int value) async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setInt("thumbnailDetail", value);
+              debugPrint("Thumb Detail set to: $value");
+              setState(() {});
+            },
+            child: ListTile(
+              leading: const Icon(Icons.image),
+              title: Text("Thumbnail Image Detail (${thumbnailDetail}%)"),
+              subtitle: const Text(
+                  "Level of quality for thumbnail images"),
+            ),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+              const PopupMenuItem(
+                  value: 10, child: Text("Low Detail (10%)")),
+              const PopupMenuItem(value: 20, child: Text("Medium Detail (20%)")),
+              const PopupMenuItem(value: 30, child: Text("High Detail (30%)")),
+              ],
+          );
+        });
+        
+  trackColorWidget() => FutureBuilder(
+    future: SharedPreferences.getInstance(),builder: (context, snapshot) {
+      if(!snapshot.hasData) {
+        return Container();
+      }
+      var tracksColored = snapshot.data!.getBool("tracksColored")??false;
+      return SwitchListTile(
+        title: const Text("Colored gpx tracks"),
+        subtitle: const Text(
+            "Show GPX tracks in different colors"),
+        value: tracksColored,
+        onChanged: (value) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool("tracksColored", value);
+          setState(() {});
+        },
+        secondary: const Icon(Icons.satellite),
+      );
+    });
 }

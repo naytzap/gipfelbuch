@@ -8,6 +8,7 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:text_scroll/text_scroll.dart';
 
 import '../database_helper.dart';
@@ -26,6 +27,7 @@ class AddActivityForm extends StatefulWidget {
 class _AddActivityFormState extends State<AddActivityForm> {
   final _formKey = GlobalKey<FormState>();
   late bool _editMode = false;
+  late SharedPreferences prefs;
   bool edited = false;
   File? gpxFile = null;
   GeoPoint? _location;
@@ -40,6 +42,10 @@ class _AddActivityFormState extends State<AddActivityForm> {
   @override
   void initState() {
     super.initState();
+    sharedData();
+  }
+    void sharedData() async {
+    prefs = await SharedPreferences.getInstance(); 
   }
 
   loadInitGpx() async {
