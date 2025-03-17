@@ -52,24 +52,30 @@ class _FMapState extends State<FMap> {
     return colormap.elementAt(id%colormap.length);
   }
 
-  Marker createMountainMarker(MountainActivity act,context) {
+  Marker createMountainMarker(MountainActivity act, context) {
     var pos = LatLng(act.location!.latitude,act.location!.longitude);
     bool marked = (widget.initPos!=null && widget.initPos==pos) ? true : false;
     bool tracksColored = prefs.getBool("tracksColored")??false;
     return Marker(
           point: pos,
-          builder: (context) => GestureDetector(
-              onTap: (){
-                //ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Tap1")));
-                Navigator.push(context,MaterialPageRoute(
-                    builder: (context) => ActivityDetail(act.id!))).then((_) => setState(() {}));
-              },
-              child: CircleAvatar(
-                        backgroundColor: marked ? Colors.orange.withOpacity(1) : (tracksColored ? getColorFromIndex(act.id!).withOpacity(0.75): Colors.teal.withOpacity(0.75)),
-                        child: Text(act.mountainName.substring(0,3).toUpperCase(),style: TextStyle(fontSize: 11, color: marked ? Colors.black : Colors.white),),
-                      )
-                     )
+          child: Builder(
+            builder: (context) {
+              return GestureDetector(
+                  onTap: (){
+                    //ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Tap1")));
+                    Navigator.push(context,MaterialPageRoute(
+                        builder: (context) => ActivityDetail(act.id!))).then((_) => setState(() {}));
+                  },
+                child:
+                CircleAvatar(
+                  backgroundColor: marked ? Colors.orange: (tracksColored ? getColorFromIndex(act.id!).withOpacity(0.75): Colors.teal),
+                  child: Text(act.mountainName.substring(0,3).toUpperCase(),style: TextStyle(fontSize: 11, color: marked ? Colors.black : Colors.white),),
+                )
               );
+            }
+          )
+          );
+
   }
 
   @override
@@ -84,16 +90,17 @@ class _FMapState extends State<FMap> {
   @override
   Widget build(BuildContext context) {
 
-    print("FMAP: init ${widget.initPos}");
+    //print("FMAP: init ${widget.initPos}");
     return Scaffold(
       body:  Container(
               child: FlutterMap(
                 options: MapOptions(
-                  center: widget.initPos??LatLng(48, 12.5),
-                  zoom: widget.initPos!=null ? 12 : 7,
+                  initialCenter: widget.initPos??LatLng(48, 12.5),
+                  initialZoom: widget.initPos!=null ? 12 : 7,
                   maxZoom: 17,
                   minZoom: 4,
-                  interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                  interactionOptions: InteractionOptions(flags: InteractiveFlag.all & ~InteractiveFlag.rotate),
+                  //interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                 ),
                 children: [
                   TileLayer(
@@ -106,7 +113,14 @@ class _FMapState extends State<FMap> {
                     builder:  (BuildContext context, AsyncSnapshot<List<Polyline>> snapshot) {
                       //List<Marker> myMarkers = [];
                       if (!snapshot.hasData) {
-                        return PolylineLayer(polylines: const [],);
+                        //return PolylineLayer(polylines: const [],);
+                        return PolylineLayer(polylines: [
+                            Polyline(
+                              points: [],
+                              color: Colors.blue,
+                            ),
+                          ],
+                        );
                       } else {
                         return PolylineLayer(polylines: snapshot.data!,);
                         //return PolylineLayer(polylines: [Polyline(color: Colors.red.withOpacity(0.8),strokeWidth: 5,points: snapshot!.data!)],);
@@ -127,6 +141,7 @@ class _FMapState extends State<FMap> {
                           for(var i=0; i<nAct; i++) {
                             MountainActivity act = snapshot.data!.elementAt(i);
                             if(act.location != null ) {
+                              // marker broken
                               myMarkers.add(createMountainMarker(act,context));
                             }
                           }

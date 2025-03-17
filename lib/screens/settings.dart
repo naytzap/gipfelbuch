@@ -57,6 +57,9 @@ class _SettingsState extends State<Settings> {
             ),
         leading: const Icon(Icons.delete_forever),
           ),
+      Container(
+        height: 70,
+      )
     ]);
   }
 
@@ -442,7 +445,7 @@ class _SettingsState extends State<Settings> {
             },
             child: ListTile(
               leading: const Icon(Icons.image),
-              title: Text("Thumbnail Image Detail (${thumbnailDetail}%)"),
+              title: Text("Thumbnail Image Detail ($thumbnailDetail%)"),
               subtitle: const Text(
                   "Level of quality for thumbnail images"),
             ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gipfelbuch/database_helper.dart';
 
 class ActivitySearchDelegate extends SearchDelegate {
   //List<String> searchTerms = (await DatabaseHelper.instance.getAllActivities()).map((a)=>a.mountainName).toList();

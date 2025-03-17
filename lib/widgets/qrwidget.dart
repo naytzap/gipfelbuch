@@ -21,7 +21,8 @@ class QrWidget extends StatelessWidget {
                           "Instead of typing all the information manually, your friends can scan this QR code in the 'add activity' menu."),
                     ),
                     Container(height: 40),
-                    QrImage(
+                    //QrImage broken -> fix
+                    QrImageView(
                       data: data, //data.toString(),
                       version: 10,
                       gapless: false,

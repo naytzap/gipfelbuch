@@ -4,21 +4,20 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart' as osm;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:text_scroll/text_scroll.dart';
 
 import '../database_helper.dart';
 import '../models/mountain_activity.dart';
 
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+//import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class AddActivityForm extends StatefulWidget {
   //final int activityId;
-  AddActivityForm(/*this.activityId,*/ {super.key});
+  const AddActivityForm(/*this.activityId,*/ {super.key});
 
   @override
   State<StatefulWidget> createState() => _AddActivityFormState();
@@ -29,8 +28,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
   late bool _editMode = false;
   late SharedPreferences prefs;
   bool edited = false;
-  File? gpxFile = null;
-  GeoPoint? _location;
+  File? gpxFile;
   late final TextEditingController _nameCtrl = TextEditingController();
   late final TextEditingController _visitorCtrl = TextEditingController();
   late final TextEditingController _dateCtrl = TextEditingController();
@@ -51,7 +49,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
   loadInitGpx() async {
     final int actId = ModalRoute.of(context)?.settings.arguments as int;
     final directory =   await getApplicationDocumentsDirectory();
-    File? savedFile = File("${directory.path}/track_${actId}.gpx");
+    File? savedFile = File("${directory.path}/track_$actId.gpx");
     setState((){
       debugPrint("loaded file");
       gpxFile = savedFile.existsSync()?savedFile:null;});
@@ -74,8 +72,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
     String barcodeScanRes;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          "#8BC34AFF", 'Cancel', false, ScanMode.QR);
+      //barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#8BC34AFF", 'Cancel', false, ScanMode.QR);
+      barcodeScanRes = "TODO";//await MobileScanner().
       debugPrint(barcodeScanRes);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
@@ -99,8 +97,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
       _durationCtrl.text = act["duration"].toString();
       _climbCtrl.text = act["climb"].toString();
       _locationCtrl.text = "${act["latitude"]}, ${act["longitude"]}";
-      _location =
-          GeoPoint(latitude: act["latitude"], longitude: act["longitude"]);
       //location
     });
   }
@@ -116,8 +112,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
     if (act.location?.latitude != null && act.location?.longitude != null) {
       _locationCtrl.text =
           "${act.location?.latitude}, ${act.location?.longitude}";
-      _location = GeoPoint(
-          latitude: act.location!.latitude, longitude: act.location!.longitude);
     } else {
       _locationCtrl.text = "";
     }
@@ -200,6 +194,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       if (value?.isEmpty ?? false) {
                         return 'Please select a date';
                       }
+                      return null;
                     },
                   ),
                   SizedBox(height: vSpacing),
@@ -251,30 +246,27 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       suffixIcon: GestureDetector(
                         child: Icon(Icons.my_location_outlined),
                         onTap: () async {
-                          GeoPoint? p = await showSimplePickerLocation(
+                          osm.GeoPoint? p = await osm.showSimplePickerLocation(
                             context: context,
                             isDismissible: false,
                             title: "Select Summit Position",
-                            titleStyle:
-                                TextStyle(/*color: Colors.green,*/ fontSize: 20),
+                            titleStyle: TextStyle(fontSize: 20),
                             textConfirmPicker: "Select",
                             textCancelPicker: "Cancel",
-                            initCurrentUserPosition: false,
-                            initPosition: (_locationCtrl.text == null ||
-                                    _locationCtrl.text.isEmpty)
-                                ? GeoPoint(
+                            //initCurrentUserPosition: false,
+                            initPosition: (_locationCtrl.text.isEmpty)
+                                ? osm.GeoPoint(
                                     latitude: 47.886302, longitude: 12.467000)
                                 : parseLocation(_locationCtrl.text),
-                            initZoom: (_locationCtrl.text == null ||
-                                    _locationCtrl.text.isEmpty)
-                                ? 8
-                                : 12,
+                            zoomOption: osm.ZoomOption(initZoom: (_locationCtrl.text.isEmpty)
+                                ? 8 : 12)
+
                           );
                           if (p != null) {
                             String formattedPoint =
                                 "${p.latitude}, ${p.longitude}";
                             debugPrint("Selected $formattedPoint");
-                            _location = p;
+                            //_location = p;
                             setState(() {
                               _locationCtrl.text =
                                   formattedPoint; //set output date to TextField value.
@@ -296,6 +288,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                           return "Please enter format in format: [12.345, 67.890]";
                         }
                       }
+                      return null;
                     },
                     //readOnly: true,
                     //onTap:
@@ -303,7 +296,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   SizedBox(height: vSpacing),
                   gpxFile != null
                       ? gpxWidget(actId)
-                      : Container(child: Text("No GPX file")),
+                      : Text("No GPX file"),
                   SizedBox(height: vSpacing),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -332,8 +325,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                           double.tryParse(_distanceCtrl.text),
                                       duration:
                                           double.tryParse(_durationCtrl.text),
-                                      location: (_locationCtrl.text == null ||
-                                              _locationCtrl.text.isEmpty)
+                                      location: (_locationCtrl.text.isEmpty)
                                           ? null
                                           : parseLocation(
                                               _locationCtrl.text), //_location,
@@ -341,7 +333,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                       date: DateFormat("dd.MM.yyyy")
                                           .parse(_dateCtrl.text));
                                   debugPrint(activity.toMap().toString());
-                                  int? id = null;
+                                  int? id;
                                   if (_editMode) {
                                     id = actId;
                                     await DatabaseHelper.instance
@@ -354,7 +346,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                     final directory =
                                         await getApplicationDocumentsDirectory();
                                     gpxFile!.copy(
-                                        "${directory.path}/track_${id}.gpx");
+                                        "${directory.path}/track_$id.gpx");
                                   }
                                   Navigator.pop(context);
                                 } else {
@@ -385,7 +377,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
           title: _editMode == true
               ? const Text("Edit Activity")
               : const Text("Add Activity"),
-          actions: _editMode
+          /*actions: _editMode
               ? []
               : <Widget>[
                   InkWell(
@@ -393,7 +385,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   Container(
                     width: 15,
                   ),
-                ],
+                ],*/
         ),
         body: _editMode
             ? FutureBuilder(
@@ -413,11 +405,11 @@ class _AddActivityFormState extends State<AddActivityForm> {
             : buildForm(null));
   }
 
-  GeoPoint parseLocation(String text) {
+  osm.GeoPoint parseLocation(String text) {
     var latlon = text.split(",");
-    double _lat = double.parse(latlon[0]);
-    double _lon = double.parse(latlon[1]);
-    return GeoPoint(latitude: _lat, longitude: _lon);
+    double lat = double.parse(latlon[0]);
+    double lon = double.parse(latlon[1]);
+    return osm.GeoPoint(latitude: lat, longitude: lon);
   }
 
   validatePositiveNumber(value) {

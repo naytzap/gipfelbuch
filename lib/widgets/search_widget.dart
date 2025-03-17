@@ -7,12 +7,12 @@ class SearchWidget extends StatefulWidget {
   final String hintText;
 
   const SearchWidget({
-    Key? key,
+    super.key,
     required this.text,
     required this.onChanged,
     required this.onClosed,
     required this.hintText,
-  }) : super(key: key);
+  });
 
   @override
   _SearchWidgetState createState() => _SearchWidgetState();

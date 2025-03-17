@@ -3,7 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+//import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:gipfelbuch/widgets/pinch_zoom_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -323,6 +324,7 @@ class _ActivityDetailState extends State<ActivityDetail> {
   openImageModal(context) async {
     showModalBottomSheet(
         context: context,
+        useRootNavigator: true,
         builder: (context) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -333,7 +335,8 @@ class _ActivityDetailState extends State<ActivityDetail> {
                   onTap: () async {
                     await pickImage().then(Navigator.of(context).pop);
                   },
-                )
+                ),
+                Container(height: 75,)
               ],
             ));
   }
@@ -345,11 +348,13 @@ class _ActivityDetailState extends State<ActivityDetail> {
     final newImage = File('${directory.path}/$name');
     //we also need to create/update the thumbnail!
     var thumbnailDetail = prefs.getInt("thumbnailDetail")??20;
-    var newThumb =
-        await FlutterNativeImage.compressImage(oldImagePath, quality: thumbnailDetail);
+    //var newThumb =
+        //await FlutterNativeImage.compressImage(oldImagePath, quality: thumbnailDetail);
+    var newThumb = await FlutterImageCompress.compressAndGetFile(oldImagePath, "${newImage.path}_thumbnail.jpg", quality: thumbnailDetail);
     //ImageProperties props = await FlutterNativeImage.getImageProperties(image.path);
     debugPrint("created a new thumb for $activityId with quality $thumbnailDetail %");
-    newThumb.copy("${newImage.path}_thumbnail");
+    //newThumb.copy("${newImage.path}_thumbnail");
+    //debugPrint("compressed to: ${newThumb.lengthSync()}");
     return File(oldImagePath).copy(newImage.path);
   }
 

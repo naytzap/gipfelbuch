@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
+//import 'package:flutter_native_image/flutter_native_image.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -158,18 +158,19 @@ class _ActivityListState extends State<ActivityList> {
 
   Future<File?> loadImage(int activityId) async {
     final directory = await getApplicationDocumentsDirectory();
-    File thumbnail = File('${directory.path}/activity_${activityId}_thumbnail');
+    File thumbnail = File('${directory.path}/activity_${activityId}_thumbnail.jpg');
     if(!await thumbnail.exists()) {
       File image = File('${directory.path}/activity_$activityId');
       if(image.existsSync()){
         //we have a image but no thumbnail yet...
         //debugPrint("Found image without thumb id: $activityId");
         var thumbnailDetail = prefs.getInt("thumbnailDetail")??20;
-        var newThumb =  await FlutterNativeImage.compressImage(image.path,quality: thumbnailDetail);
+        var newThumb =  FlutterLogo();//await FlutterNativeImage.compressImage(image.path,quality: thumbnailDetail);
         //ImageProperties props = await FlutterNativeImage.getImageProperties(image.path);
-        debugPrint("created a new thumb for $activityId with quality $thumbnailDetail %");
-        newThumb.copy("${image.path}_thumbnail");
-        return await newThumb.exists() ? newThumb : null;
+        //debugPrint("created a new thumb for $activityId with quality $thumbnailDetail %");
+        //newThumb.copy("${image.path}_thumbnail");
+        //return await newThumb.exists() ? newThumb : null;
+        return image;
       } else {
         //we did not find no image
         //debugPrint("no image found id: $activityId");

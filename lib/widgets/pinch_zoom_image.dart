@@ -57,7 +57,7 @@ class _PinchZoomImageState extends State<PinchZoomImage> with SingleTickerProvid
       }),
       onInteractionUpdate: ((details) {
         if (entry==null) return;
-        this.scale = details.scale;
+        scale = details.scale;
         entry!.markNeedsBuild();
       }),
       onInteractionEnd: (details) {
@@ -109,7 +109,7 @@ class _PinchZoomImageState extends State<PinchZoomImage> with SingleTickerProvid
         );
     });
 
-    final overlay = Overlay.of(context)!;
+    final overlay = Overlay.of(context);
     overlay.insert(entry!);
   }
   

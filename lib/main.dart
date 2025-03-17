@@ -4,16 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gipfelbuch/screens/fmap.dart';
 import 'package:gipfelbuch/screens/settings.dart';
 import 'package:gipfelbuch/screens/statistics.dart';
-import 'package:gipfelbuch/widgets/activity_search_delegate.dart';
 import 'package:gipfelbuch/widgets/search_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/add_activity.dart';
 import 'screens/about.dart';
-//import 'screens/osmmap.dart';
 import 'widgets/activity_list.dart';
 import 'widgets/bottom_navbar.dart';
 import 'widgets/navdrawer.dart';
-import 'package:intl/intl.dart';
 
 void main() =>  runApp(const MyApp());
 
@@ -38,12 +35,10 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Gipfelbuch',
             theme: ThemeData(
-              colorScheme: lightColorScheme ?? defaultLightColorScheme,
-              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green)//lightColorScheme ?? defaultLightColorScheme,
             ),
             darkTheme: ThemeData(
-              colorScheme: darkColorScheme ?? defaultDarkColorScheme,
-              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green, brightness: Brightness.dark)//darkColorScheme ?? defaultDarkColorScheme,
             ),
             themeMode: snapshot.data == "system" ? ThemeMode.system : (snapshot.data == "dark" ? ThemeMode.dark : ThemeMode.light),
             initialRoute: '/',

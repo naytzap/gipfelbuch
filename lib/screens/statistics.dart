@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:gipfelbuch/database_helper.dart';
 import 'package:gipfelbuch/models/mountain_activity.dart';
 import 'package:text_scroll/text_scroll.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/activity_detail.dart';
 
@@ -164,7 +163,7 @@ class Statistics extends StatelessWidget {
     //List<String?> words = text.split(",").map((word) => word.isNotEmpty?word.trim():null ).toList();
     List<String> words = text
         .split(",")
-        .where((s) => !s.isEmpty)
+        .where((s) => s.isNotEmpty)
         .map((w) => w.trim())
         .toList()
       ..sort();
@@ -174,10 +173,8 @@ class Statistics extends StatelessWidget {
 
     Map<String, int> count = {};
     for (var word in words) {
-      if (word != null) {
-        count.update(word, (value) => value + 1, ifAbsent: () => 1);
-      }
-    }
+      count.update(word, (value) => value + 1, ifAbsent: () => 1);
+        }
     //rankCount(count);
     return count;
   }
